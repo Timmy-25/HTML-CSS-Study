@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Atelier — HTML/CSS/JS工房</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Fredoka:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --bg: #FFF7F5;
+  --line: #F6DDE3;
+  --pink: #FF8FAB;
+  --pink-deep: #EE6A93;
+  --pink-soft: #FFE6EE;
+  --lavender: #B9A7F0;
+  --lavender-deep: #6F55C9;
+  --lavender-soft: #EFE9FF;
+  --mint: #7ED6B8;
+  --mint-deep: #28916F;
+  --mint-soft: #E0F6EC;
+  --peach-soft: #FFEBDD;
+  --peach-deep: #C2652A;
+  --butter-soft: #FFF3CC;
+  --butter-deep: #A87A00;
+  --text: #4B3B47;
+  --text-dim: #8E7C88;
+  --red: #D6455F;
+  --panel: #FFFDFB;
+  --shadow: rgba(238,106,147,0.14);
+  --surface: #FFFFFF;
+  --surface-2: #FFF3F6;
+  --task-border: #FFC9D8;
+  --err-bg: #FFECEF;
+  --sidebar-bg: rgba(255,255,255,0.72);
+  --bar-bg: rgba(255,255,255,0.9);
+  --glow1: #FFE6EE;
+  --glow2: #EFE9FF;
+  --glow3: #E0F6EC;
+  --tok-comment: #B3A3AE;
+  --tok-tag: #E0507D;
+  --tok-attr: #8B6FE0;
+  --tok-string: #28916F;
+  --tok-num: #D9751A;
+  --tok-brace: #3F8FB0;
+  --tok-sel: #B452A8;
+  --tok-func: #6F55C9;
+  color-scheme: light;
+}
+:root[data-theme="dark"]{
+  --bg: #1B1620;
+  --line: #3B3044;
+  --pink: #FF8FAB;
+  --pink-deep: #FF8FAB;
+  --pink-soft: #3A2432;
+  --lavender: #8F7BD6;
+  --lavender-deep: #CBBBFF;
+  --lavender-soft: #2D2547;
+  --mint: #7ED6B8;
+  --mint-deep: #7ED6B8;
+  --mint-soft: #1D3830;
+  --peach-soft: #3A2A21;
+  --peach-deep: #FFB38A;
+  --butter-soft: #38301C;
+  --butter-deep: #FFD976;
+  --text: #F4EAF1;
+  --text-dim: #B7A6B3;
+  --red: #FF8A9C;
+  --panel: #221B28;
+  --shadow: rgba(0,0,0,0.38);
+  --surface: #2A2230;
+  --surface-2: #30273A;
+  --task-border: #5A3A4B;
+  --err-bg: #3D2029;
+  --sidebar-bg: rgba(34,27,40,0.82);
+  --bar-bg: rgba(34,27,40,0.92);
+  --glow1: #3A2030;
+  --glow2: #2A2147;
+  --glow3: #16332B;
+  --tok-comment: #8B7A89;
+  --tok-tag: #FF8FAB;
+  --tok-attr: #B9A7F0;
+  --tok-string: #7ED6B8;
+  --tok-num: #FFB38A;
+  --tok-brace: #8FC9F0;
+  --tok-sel: #E39AF0;
+  --tok-func: #CBBBFF;
+  color-scheme: dark;
+}
+html{-webkit-text-size-adjust:100%;}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;}
+body{
+  background:
+    radial-gradient(circle at 12% 8%, var(--glow1) 0, transparent 38%),
+    radial-gradient(circle at 92% 2%, var(--glow2) 0, transparent 36%),
+    radial-gradient(circle at 85% 98%, var(--glow3) 0, transparent 40%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:'Zen Maru Gothic', sans-serif;
+  min-height:100vh;
+  display:flex;
+}
+::selection{background:rgba(255,143,171,0.3);}
+textarea::selection{background:rgba(255,143,171,0.28);}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:290px;
+  flex-shrink:0;
+  background:var(--sidebar-bg);
+  backdrop-filter:blur(8px);
+  border-right:1.5px solid var(--line);
+  padding:22px 16px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  overflow-y:auto;
+}
+.brand-row{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.logo{
+  width:42px;height:42px;flex-shrink:0;
+  border-radius:14px;
+  background:linear-gradient(135deg,#FFB0C6,#FF8FAB 55%,#FFB38A);
+  color:#fff;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 18px var(--shadow);
+}
+.brand{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:19px;
+  color:var(--pink-deep);
+  line-height:1.2;
+}
+.brand-sub{
+  font-size:11px;
+  color:var(--text-dim);
+  margin-top:2px;
+}
+.section-label{
+  display:inline-block;
+  align-self:flex-start;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  padding:3px 12px;
+  border-radius:999px;
+  margin:16px 0 8px;
+  background:var(--pink-soft);
+  color:var(--pink-deep);
+}
+.section-label.html{background:var(--peach-soft);color:var(--peach-deep);}
+.section-label.css{background:var(--mint-soft);color:var(--mint-deep);}
+.section-label.js{background:var(--butter-soft);color:var(--butter-deep);}
+.section-label.advanced{background:var(--pink-soft);color:var(--pink-deep);}
+.section-label.final{background:var(--lavender-soft);color:var(--lavender-deep);}
+.building{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.floor{
+  padding:9px 10px;
+  border-radius:14px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12.5px;
+  border:1.5px solid transparent;
+  transition:background .15s, transform .15s, border-color .15s;
+}
+.floor:hover{background:var(--pink-soft);transform:translateX(2px);}
+.floor.active{background:var(--surface);border-color:var(--pink);box-shadow:0 6px 14px var(--shadow);}
+.floor .num{
+  width:24px;height:24px;
+  border-radius:50%;
+  background:var(--surface);
+  border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:11px;color:var(--text-dim);
+  flex-shrink:0;
+}
+.floor.done .num{background:linear-gradient(135deg,#FFB0C6,#FF8FAB);border-color:transparent;color:#fff;}
+.floor.active .num{border-color:var(--pink);color:var(--pink-deep);}
+.floor.active.done .num{color:#fff;}
+.floor .label{flex:1;color:var(--text-dim);font-weight:500;}
+.floor.active .label, .floor.done .label{color:var(--text);}
+.floor.done::after{content:'✓';color:var(--mint-deep);font-size:12px;font-weight:700;}
+
+.progress-note{
+  margin-top:18px;
+  padding:10px 14px;
+  background:var(--lavender-soft);
+  color:var(--lavender-deep);
+  border-radius:14px;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.6;
+}
+
+/* ---------- MAIN ---------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{
+  padding:20px 30px 14px;
+  max-height:44vh;
+  overflow-y:auto;
+}
+.eyebrow{
+  display:inline-block;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:11.5px;
+  color:var(--pink-deep);
+  background:var(--pink-soft);
+  padding:3px 12px;
+  border-radius:999px;
+  letter-spacing:0.08em;
+  margin-bottom:8px;
+}
+h1{
+  margin:0 0 10px;
+  font-size:22px;
+  font-weight:900;
+  color:var(--text);
+}
+.task{
+  color:var(--text);
+  font-size:14px;
+  line-height:1.8;
+  max-width:720px;
+  padding:12px 16px;
+  background:var(--surface);
+  border:1.5px solid var(--task-border);
+  border-radius:16px;
+  box-shadow:0 6px 16px var(--shadow);
+  margin-bottom:12px;
+}
+.explain{
+  max-width:720px;
+  font-size:13px;
+  color:var(--text-dim);
+  line-height:1.85;
+}
+.explain b{color:var(--text);font-weight:700;}
+.explain code{
+  background:var(--lavender-soft);
+  color:var(--lavender-deep);
+  padding:1px 7px;
+  border-radius:8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+}
+.explain ul{margin:4px 0 10px;padding-left:20px;}
+.explain li{margin-bottom:3px;}
+.hint-toggle{
+  margin-top:8px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--lavender-deep);
+  background:var(--lavender-soft);
+  padding:5px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-block;
+  transition:transform .15s;
+}
+.hint-toggle:hover{transform:translateY(-1px);}
+.hint-box{
+  display:none;
+  margin-top:10px;
+  padding:12px 14px;
+  background:var(--surface);
+  border:1.5px dashed var(--lavender);
+  font-size:12px;
+  color:var(--text);
+  border-radius:14px;
+  max-width:720px;
+  line-height:1.65;
+  white-space:pre-wrap;
+  font-family:'JetBrains Mono',monospace;
+}
+.hint-box.show{display:block;}
+
+.workspace{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  padding:6px 24px 10px;
+  min-height:0;
+}
+.editor-pane,.preview-pane{
+  background:var(--surface);
+  border:1.5px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 24px var(--shadow);
+  display:flex;flex-direction:column;min-height:0;
+}
+.tabs{
+  display:flex;
+  gap:6px;
+  padding:8px 10px;
+  background:var(--surface-2);
+}
+.tab{
+  padding:6px 15px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  font-weight:500;
+  color:var(--text-dim);
+  cursor:pointer;
+  border-radius:999px;
+  transition:background .15s, color .15s;
+}
+.tab:hover{background:var(--surface);}
+.tab.html-tab.active{background:var(--peach-soft);color:var(--peach-deep);font-weight:700;}
+.tab.css-tab.active{background:var(--mint-soft);color:var(--mint-deep);font-weight:700;}
+.tab.js-tab.active{background:var(--lavender-soft);color:var(--lavender-deep);font-weight:700;}
+.code-wrap{
+  display:none;
+  position:relative;
+  min-height:0;
+}
+.code-wrap.active-editor{display:block;flex:1;}
+.highlight-layer{
+  position:absolute;
+  inset:0;
+  margin:0;
+  padding:14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  color:var(--text);
+  pointer-events:none;
+  overflow:auto;
+  background:var(--panel);
+  tab-size:2;
+}
+.highlight-layer,textarea{scrollbar-width:none;}
+.highlight-layer::-webkit-scrollbar,textarea::-webkit-scrollbar{display:none;}
+textarea{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  background:transparent;
+  color:transparent;
+  caret-color:var(--pink-deep);
+  border:none;
+  border-radius:0;
+  -webkit-appearance:none;
+  appearance:none;
+  outline:none;
+  resize:none;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  line-height:1.6;
+  padding:14px;
+  tab-size:2;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  z-index:2;
+}
+/* シンタックスハイライト用トークン色（明るい背景向け） */
+.tok-comment{color:var(--tok-comment);font-style:italic;}
+.tok-tagOpen,.tok-tagClose{color:var(--tok-tag);}
+.tok-attrName{color:var(--tok-attr);}
+.tok-attrValue,.tok-string{color:var(--tok-string);}
+.tok-atrule{color:var(--tok-tag);}
+.tok-property{color:var(--tok-attr);}
+.tok-hex,.tok-number{color:var(--tok-num);}
+.tok-brace{color:var(--tok-brace);}
+.tok-selectorPunct{color:var(--tok-sel);}
+.tok-keyword{color:var(--tok-tag);font-weight:700;}
+.tok-func{color:var(--tok-func);}
+.pane-head{
+  padding:10px 16px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--pink-deep);
+  background:var(--surface-2);
+}
+.preview-frame{flex:1;border:none;background:#fff;}
+
+.footer{
+  padding:12px 30px 20px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+button.check{
+  background:linear-gradient(135deg,#FF9DB6,#FF7BA0);
+  color:#fff;
+  border:none;
+  font-family:'Zen Maru Gothic',sans-serif;
+  font-weight:700;
+  font-size:14px;
+  padding:12px 26px;
+  border-radius:999px;
+  cursor:pointer;
+  letter-spacing:0.03em;
+  box-shadow:0 8px 18px rgba(255,111,150,0.35);
+  transition:transform .15s, box-shadow .2s;
+  flex-shrink:0;
+}
+button.check:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(255,111,150,0.42);}
+button.check:active{transform:scale(0.97);}
+.result{
+  font-size:13px;
+  font-weight:500;
+  flex:1;
+}
+.result.ok,.result.ng{padding:9px 16px;border-radius:16px;}
+.result.ok{color:var(--mint-deep);background:var(--mint-soft);font-weight:700;animation:pop .45s cubic-bezier(.2,1.4,.4,1);}
+.result.ng{color:var(--red);background:var(--err-bg);}
+.result ul{margin:4px 0 0;padding-left:18px;}
+@keyframes pop{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+/* ---------- クリア時のモーダルと紙吹雪 ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;
+  background:rgba(75,59,71,0.35);
+  backdrop-filter:blur(4px);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:100;
+}
+.modal-backdrop.show{display:flex;}
+.modal-card{
+  background:var(--surface);
+  border:2px solid var(--pink-soft);
+  border-radius:28px;
+  padding:30px 34px 24px;
+  width:min(380px,90vw);
+  text-align:center;
+  box-shadow:0 24px 60px rgba(238,106,147,0.28);
+  animation:pop .45s cubic-bezier(.2,1.4,.4,1);
+}
+.modal-badge{
+  width:64px;height:64px;margin:0 auto 12px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#FFB0C6,#FF8FAB 55%,#FFB38A);
+  color:#fff;font-size:30px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 22px var(--shadow);
+}
+.modal-title{font-size:23px;font-weight:900;color:var(--pink-deep);margin-bottom:6px;}
+.modal-text{font-size:13.5px;color:var(--text-dim);line-height:1.8;margin:0 0 20px;}
+.modal-actions{display:flex;gap:10px;justify-content:center;}
+.btn-main,.btn-soft{
+  font-family:'Zen Maru Gothic',sans-serif;
+  font-weight:700;font-size:13.5px;
+  padding:11px 22px;border-radius:999px;cursor:pointer;
+  transition:transform .15s;
+}
+.btn-main{border:none;color:#fff;background:linear-gradient(135deg,#FF9DB6,#FF7BA0);box-shadow:0 8px 18px rgba(255,111,150,0.35);}
+.btn-soft{border:1.5px solid var(--line);color:var(--text-dim);background:var(--surface);}
+.btn-main:hover,.btn-soft:hover{transform:translateY(-1px);}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:101;}
+.confetti-piece{
+  position:absolute;top:-24px;opacity:0;
+  animation:fall var(--d) ease-in forwards;
+}
+@keyframes fall{
+  0%{transform:translate3d(0,0,0) rotate(0);opacity:1;}
+  100%{transform:translate3d(var(--x),105vh,0) rotate(var(--r));opacity:.9;}
+}
+@media (prefers-reduced-motion:reduce){
+  .confetti-piece{display:none;}
+  .result.ok,.modal-card{animation:none;}
+}
+
+/* ---------- ダークモード切替ボタン ---------- */
+.theme-toggle{
+  position:fixed;
+  top:14px;right:18px;
+  z-index:70;
+  display:flex;align-items:center;gap:8px;
+  border:1.5px solid var(--line);
+  background:var(--surface);
+  color:var(--text);
+  font-family:'Zen Maru Gothic',sans-serif;
+  font-weight:700;
+  font-size:12px;
+  padding:8px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 8px 18px var(--shadow);
+  transition:transform .15s, background .2s;
+}
+.theme-toggle:hover{transform:translateY(-1px);}
+.theme-toggle svg{width:16px;height:16px;flex-shrink:0;}
+.theme-toggle .icon-sun,.theme-toggle .to-light{display:none;}
+:root[data-theme="dark"] .theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .to-light{display:inline-block;}
+:root[data-theme="dark"] .theme-toggle .icon-moon,
+:root[data-theme="dark"] .theme-toggle .to-dark{display:none;}
+
+/* スマホ用パーツ（PCでは非表示） */
+.mobile-bar,.drawer-backdrop{display:none;}
+
+/* ---------- スマホ・タブレット（PCのレイアウトは変更しない） ---------- */
+@media (max-width:900px){
+  html,body{height:auto;}
+  body{display:block;}
+  .mobile-bar{
+    display:flex;align-items:center;gap:10px;
+    position:sticky;top:0;z-index:40;
+    height:56px;
+    padding:0 62px 0 12px;
+    background:var(--bar-bg);
+    backdrop-filter:blur(10px);
+    border-bottom:1.5px solid var(--line);
+  }
+  .menu-btn{
+    display:flex;align-items:center;gap:8px;flex-shrink:0;
+    border:none;cursor:pointer;
+    background:var(--pink-soft);color:var(--pink-deep);
+    font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:13px;
+    padding:9px 14px;border-radius:999px;
+  }
+  .menu-btn svg{width:16px;height:16px;}
+  .mobile-title{
+    font-size:13px;font-weight:700;color:var(--text);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+  }
+  .theme-toggle{top:9px;right:10px;padding:9px;}
+  .theme-toggle .tt-label{display:none;}
+
+  /* サイドバーは左から出てくるドロワーに */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;
+    width:min(86vw,320px);
+    z-index:60;
+    transform:translateX(-105%);
+    transition:transform .28s ease;
+    background:var(--surface);
+    box-shadow:0 0 40px rgba(0,0,0,0.25);
+    -webkit-overflow-scrolling:touch;
+  }
+  body.drawer-open .sidebar{transform:none;}
+  .drawer-backdrop{
+    position:fixed;inset:0;z-index:55;
+    background:rgba(75,59,71,0.45);
+  }
+  body.drawer-open .drawer-backdrop{display:block;}
+  .floor{padding:12px 10px;}
+
+  .main{display:block;}
+  .topbar{max-height:none;overflow:visible;padding:16px 16px 10px;}
+  h1{font-size:19px;}
+  .workspace{
+    display:flex;flex-direction:column;
+    gap:14px;
+    padding:6px 14px 14px;
+  }
+  .editor-pane{height:min(54vh,480px);min-height:300px;}
+  .preview-pane{height:min(46vh,440px);min-height:280px;}
+  /* iOSは16px未満の入力欄にフォーカスすると拡大されてしまうため */
+  .highlight-layer,textarea{font-size:16px;line-height:1.55;}
+
+  .footer{
+    position:sticky;bottom:0;z-index:30;
+    flex-wrap:wrap;gap:10px;
+    padding:10px 14px 14px;
+    background:var(--bar-bg);
+    backdrop-filter:blur(10px);
+    border-top:1.5px solid var(--line);
+  }
+  button.check{flex:1 1 100%;padding:13px 20px;}
+  .result{flex:1 1 100%;max-height:30vh;overflow:auto;}
+  .result:empty{display:none;}
+  .modal-actions{flex-wrap:wrap;}
+}
+</style>
+<script>
+(function(){
+  var t=null;
+  try{ t=localStorage.getItem('dojo-theme'); }catch(e){}
+  if(t!=='dark' && t!=='light'){
+    t=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  }
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+</head>
+<body>
+
+<div class="mobile-bar">
+  <button class="menu-btn" id="menuBtn" type="button" aria-label="レベル一覧を開く">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    レベル一覧
+  </button>
+  <div class="mobile-title" id="mobileTitle"></div>
+</div>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替え">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  <span class="tt-label"><span class="to-dark">ダークモード</span><span class="to-light">ライトモード</span></span>
+</button>
+
+<div class="sidebar">
+  <div class="brand-row">
+    <div class="logo">&lt;/&gt;</div>
+    <div>
+      <div class="brand">Code Atelier</div>
+      <div class="brand-sub">HTML・CSS・JS工房　レベルを上げて、ホームページを作ろう</div>
+    </div>
+  </div>
+  <div id="sidebarLevels"></div>
+  <div class="progress-note" id="progressNote"></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <div class="task" id="taskDesc"></div>
+    <div class="explain" id="explainBox"></div>
+    <span class="hint-toggle" id="hintToggle">解答例を見る ▾</span>
+    <div class="hint-box" id="hintBox"></div>
+  </div>
+
+  <div class="workspace">
+    <div class="editor-pane">
+      <div class="tabs">
+        <div class="tab html-tab active" data-tab="html">HTML</div>
+        <div class="tab css-tab" data-tab="css">CSS</div>
+        <div class="tab js-tab" data-tab="js">JavaScript</div>
+      </div>
+      <div class="code-wrap active-editor" id="htmlWrap">
+        <pre class="highlight-layer" id="htmlHighlight"></pre>
+        <textarea id="htmlInput" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
+      </div>
+      <div class="code-wrap" id="cssWrap">
+        <pre class="highlight-layer" id="cssHighlight"></pre>
+        <textarea id="cssInput" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
+      </div>
+      <div class="code-wrap" id="jsWrap">
+        <pre class="highlight-layer" id="jsHighlight"></pre>
+        <textarea id="jsInput" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
+      </div>
+    </div>
+    <div class="preview-pane">
+      <div class="pane-head">プレビュー（入力するとすぐ反映されます）</div>
+      <iframe class="preview-frame" id="preview"></iframe>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="check" id="checkBtn">このレベルを検査する ▸</button>
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<iframe id="hiddenCheck" style="display:none"></iframe>
+
+<div id="confetti"></div>
+<div class="modal-backdrop" id="clearModal">
+  <div class="modal-card">
+    <div class="modal-badge">✓</div>
+    <div class="modal-title" id="modalTitle">クリア！</div>
+    <p class="modal-text" id="modalText"></p>
+    <div class="modal-actions">
+      <button class="btn-soft" id="modalStay">このレベルに残る</button>
+      <button class="btn-main" id="modalNext">次のレベルへ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS = [
+// ========== HTML編 ==========
+{
+  section:'html', title:'レベル1 — 見出しと段落',
+  eyebrow:'LEVEL 01 / HTML・見出しと段落',
+  task:'h1タグで見出し「ようこそ」を、pタグで自己紹介の一文を1つ作ってください。',
+  explain:`
+    <p><b>&lt;h1&gt;〜&lt;/h1&gt;</b>：ページの中で一番大事な見出しに使うタグです。h1〜h6まであり、数字が小さいほど大きく重要な見出しになります。1ページに1つだけ使うのが基本です。</p>
+    <p><b>&lt;p&gt;〜&lt;/p&gt;</b>：paragraph（段落）の略。文章のかたまりを表すタグです。</p>
+    <p>HTMLのタグは基本的に <code>&lt;タグ名&gt;内容&lt;/タグ名&gt;</code> のように「開始タグ」と「終了タグ」ではさんで書きます。</p>
+  `,
+  hint:'<h1>ようこそ</h1>\n<p>はじめまして、○○です。</p>',
+  html:`<!-- ここに書いてね -->\n`, css:`/* まだ空でOK */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const h1=doc.querySelector('h1');
+    if(!h1) errs.push('h1タグが見つかりません');
+    else if(h1.textContent.trim()!=='ようこそ') errs.push('h1の中身が「ようこそ」になっていません');
+    const p=doc.querySelector('p');
+    if(!p) errs.push('pタグが見つかりません');
+    else if(p.textContent.trim().length===0) errs.push('pタグの中身が空です');
+    return errs;
+  }
+},
+{
+  section:'html', title:'レベル2 — リンク',
+  eyebrow:'LEVEL 02 / HTML・リンク',
+  task:'aタグで、href属性に "https://example.com" を指定したリンクを作ってください。リンクの文字は自由です。',
+  explain:`
+    <p><b>&lt;a&gt;〜&lt;/a&gt;</b>：anchor（アンカー）の略で、他のページへのリンクを作るタグです。</p>
+    <p><b>href属性</b>：リンク先のURLを指定します。<code>&lt;a href="URL"&gt;表示する文字&lt;/a&gt;</code> の形で書きます。</p>
+    <p>「属性」はタグに追加情報を渡す仕組みで、開始タグの中に <code>属性名="値"</code> の形で書きます。</p>
+  `,
+  hint:'<a href="https://example.com">公式サイトへ</a>',
+  html:`<!-- ここに書いてね -->\n`, css:`/* まだ空でOK */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const a=doc.querySelector('a');
+    if(!a) errs.push('aタグが見つかりません');
+    else{
+      const href=a.getAttribute('href')||'';
+      if(!href) errs.push('href属性がありません');
+      else if(href.replace(/\/$/,'')!=='https://example.com') errs.push('hrefの値が https://example.com になっていません');
+      if(a.textContent.trim().length===0) errs.push('リンクの文字が空です');
+    }
+    return errs;
+  }
+},
+{
+  section:'html', title:'レベル3 — 画像',
+  eyebrow:'LEVEL 03 / HTML・画像',
+  task:'imgタグで、src属性に "https://placehold.co/300x200" を、alt属性に画像の説明文を指定してください。',
+  explain:`
+    <p><b>&lt;img&gt;</b>：画像を表示するタグです。他のタグと違い終了タグがなく、<code>&lt;img src="..." alt="..."&gt;</code> の1つだけで完結します。</p>
+    <p><b>src属性</b>：表示する画像ファイルの場所（URL）を指定します。</p>
+    <p><b>alt属性</b>：画像が表示できないときや、視覚に障害のある方が読み上げソフトを使うときに読まれる代替テキストです。画像の内容を説明する文章を入れましょう。</p>
+  `,
+  hint:'<img src="https://placehold.co/300x200" alt="サンプル画像">',
+  html:`<!-- ここに書いてね -->\n`, css:`/* まだ空でOK */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const img=doc.querySelector('img');
+    if(!img) errs.push('imgタグが見つかりません');
+    else{
+      if(!img.getAttribute('src')) errs.push('src属性がありません');
+      if(!img.getAttribute('alt') || img.getAttribute('alt').trim()==='') errs.push('alt属性に説明文が入っていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'html', title:'レベル4 — リストとナビゲーション',
+  eyebrow:'LEVEL 04 / HTML・リスト',
+  task:'navタグの中に、ulとliを使って3つ以上のメニュー項目を持つリストを作ってください。',
+  explain:`
+    <p><b>&lt;ul&gt;〜&lt;/ul&gt;</b>：unordered list（順序のないリスト）。箇条書きの入れ物です。</p>
+    <p><b>&lt;li&gt;〜&lt;/li&gt;</b>：list item。ulやolの中に入れる、リストの1項目です。</p>
+    <p><b>&lt;nav&gt;〜&lt;/nav&gt;</b>：ナビゲーションメニュー（サイト内の主要なリンクの集まり）であることを示すタグです。</p>
+    <p>基本の書き方：<code>&lt;nav&gt;&lt;ul&gt;&lt;li&gt;&lt;a href="#"&gt;ホーム&lt;/a&gt;&lt;/li&gt;...&lt;/ul&gt;&lt;/nav&gt;</code></p>
+  `,
+  hint:'<nav>\n  <ul>\n    <li><a href="#">ホーム</a></li>\n    <li><a href="#">サービス</a></li>\n    <li><a href="#">お問い合わせ</a></li>\n  </ul>\n</nav>',
+  html:`<!-- ここに書いてね -->\n`, css:`/* まだ空でOK */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const nav=doc.querySelector('nav');
+    if(!nav) errs.push('navタグが見つかりません');
+    else{
+      const items=nav.querySelectorAll('ul li');
+      if(items.length<3) errs.push('nav内のliが3つ未満です');
+    }
+    return errs;
+  }
+},
+{
+  section:'html', title:'レベル5 — ページの構造タグ',
+  eyebrow:'LEVEL 05 / HTML・セマンティックタグ',
+  task:'header、main、footerの3つのタグを使って、ページの大枠を作ってください（中身は自由）。',
+  explain:`
+    <p>ホームページは意味のあるかたまりに分けて組み立てます。これを「セマンティック（意味のある）タグ」と呼びます。</p>
+    <ul>
+      <li><b>&lt;header&gt;</b>：ページ上部の、タイトルやナビゲーションが入る部分</li>
+      <li><b>&lt;main&gt;</b>：ページの中心となるメインコンテンツ</li>
+      <li><b>&lt;footer&gt;</b>：ページ下部の、著作権表示やリンクなどが入る部分</li>
+    </ul>
+    <p>divと違ってタグ名自体が「ここは何のブロックか」を表すので、コードが読みやすくなります。</p>
+  `,
+  hint:'<header><h1>サイト名</h1></header>\n<main><p>本文</p></main>\n<footer><p>&copy; 2026</p></footer>',
+  html:`<!-- ここに書いてね -->\n`, css:`/* まだ空でOK */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    if(!doc.querySelector('header')) errs.push('headerタグが見つかりません');
+    if(!doc.querySelector('main')) errs.push('mainタグが見つかりません');
+    if(!doc.querySelector('footer')) errs.push('footerタグが見つかりません');
+    return errs;
+  }
+},
+// ========== CSS編 ==========
+{
+  section:'css', title:'レベル6 — クラスと背景色',
+  eyebrow:'LEVEL 06 / CSS・クラスと色',
+  task:'class="box" を持つdivを1つ作り、CSSで背景色(background-color)を指定してください。',
+  explain:`
+    <p><b>class属性</b>：要素に名前（グループ名）をつける仕組みです。<code>&lt;div class="box"&gt;</code> のように指定します。</p>
+    <p>CSSでは <code>.クラス名 { プロパティ: 値; }</code> という形で、同じクラス名を持つすべての要素にスタイルを適用できます。ドット（.）を忘れないようにしましょう。</p>
+    <p><b>background-color</b>：背景色を指定するプロパティ。色は <code>red</code> のような名前でも、<code>#3498db</code> のようなカラーコードでも指定できます。</p>
+  `,
+  hint:'HTML: <div class="box">箱です</div>\nCSS:\n.box {\n  background-color: #3498db;\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`/* .box にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const box=doc.querySelector('.box');
+    if(!box) errs.push('class="box" の要素が見つかりません');
+    else{
+      const bg=doc.defaultView.getComputedStyle(box).backgroundColor;
+      if(!bg||bg==='rgba(0, 0, 0, 0)'||bg==='transparent') errs.push('.box に背景色が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル7 — ボックスモデル',
+  eyebrow:'LEVEL 07 / CSS・ボックスモデル',
+  task:'class="card" のdivを作り、padding を16px以上、border を1px以上つけてください。',
+  explain:`
+    <p>HTMLの要素はすべて四角い「箱」として扱われます。これを<b>ボックスモデル</b>と言い、内側から順に「内容(content)→padding→border→margin」の4層で構成されます。</p>
+    <ul>
+      <li><b>padding</b>：内容とborderの間の余白（内側の余白）</li>
+      <li><b>border</b>：箱の枠線。<code>border: 1px solid #333;</code> のように「太さ 種類 色」をまとめて書けます</li>
+      <li><b>margin</b>：borderの外側、他の要素との間の余白（外側の余白）</li>
+    </ul>
+  `,
+  hint:'.card {\n  padding: 20px;\n  border: 1px solid #333;\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`/* .card にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const card=doc.querySelector('.card');
+    if(!card) errs.push('class="card" の要素が見つかりません');
+    else{
+      const s=doc.defaultView.getComputedStyle(card);
+      if(!(parseFloat(s.paddingTop)>=16)) errs.push('paddingが16px未満です');
+      if(!(parseFloat(s.borderTopWidth)>=1)||s.borderTopStyle==='none') errs.push('borderが設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル8 — Flexboxで横並び',
+  eyebrow:'LEVEL 08 / CSS・Flexbox',
+  task:'class="row" のdivの中にdivを3つ入れ、.row に display:flex を指定して横並びにしてください。',
+  explain:`
+    <p><b>Flexbox</b>は要素を横並び・縦並びに整列させるための仕組みです。ホームページのメニューやカード一覧など、あらゆる場所で使われます。</p>
+    <p>親要素に <code>display: flex;</code> を指定すると、その直下の子要素が自動的に横一列に並びます。</p>
+    <p>さらに <code>justify-content</code>（横方向の揃え方）や <code>gap</code>（要素同士のすき間）を組み合わせるとレイアウトが整います。</p>
+  `,
+  hint:'HTML:\n<div class="row">\n  <div>1</div>\n  <div>2</div>\n  <div>3</div>\n</div>\nCSS:\n.row {\n  display: flex;\n  gap: 10px;\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`/* .row にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const row=doc.querySelector('.row');
+    if(!row) errs.push('class="row" の要素が見つかりません');
+    else{
+      const s=doc.defaultView.getComputedStyle(row);
+      if(s.display!=='flex') errs.push('.row に display: flex が設定されていません');
+      if(row.children.length<3) errs.push('.row の中の子要素が3つ未満です');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル9 — 角丸と影',
+  eyebrow:'LEVEL 09 / CSS・装飾',
+  task:'class="tile" のdivに border-radius と box-shadow の両方をつけてください。',
+  explain:`
+    <p><b>border-radius</b>：箱の角を丸くするプロパティ。数値が大きいほど丸みが強くなります（例: <code>border-radius: 12px;</code>）。</p>
+    <p><b>box-shadow</b>：箱に影をつけるプロパティ。<code>box-shadow: 横位置 縦位置 ぼかし 色;</code> の順で指定します（例: <code>box-shadow: 0 4px 10px rgba(0,0,0,0.3);</code>）。</p>
+    <p>この2つを組み合わせるとカードのような立体感のあるデザインになります。</p>
+  `,
+  hint:'.tile {\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0,0,0,0.3);\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`/* .tile にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const tile=doc.querySelector('.tile');
+    if(!tile) errs.push('class="tile" の要素が見つかりません');
+    else{
+      const s=doc.defaultView.getComputedStyle(tile);
+      if(parseFloat(s.borderTopLeftRadius)<=0) errs.push('border-radiusが設定されていません');
+      if(!s.boxShadow||s.boxShadow==='none') errs.push('box-shadowが設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル10 — レスポンシブ対応',
+  eyebrow:'LEVEL 10 / CSS・メディアクエリ',
+  task:'class="panel" のdivを作り、@media (max-width: 600px) の中で文字色(color)が変わるように指定してください。',
+  explain:`
+    <p><b>メディアクエリ</b>は、画面幅などの条件によって適用するCSSを切り替える仕組みです。スマホでもパソコンでも見やすいページ（レスポンシブデザイン）を作るために使います。</p>
+    <p>書き方：<code>@media (max-width: 600px) { .panel { color: red; } }</code></p>
+    <p>これは「画面の横幅が600px以下のとき、.panelの文字色をredにする」という意味です。</p>
+  `,
+  hint:'.panel { color: black; }\n\n@media (max-width: 600px) {\n  .panel { color: red; }\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`.panel { color: black; }\n\n/* ここに @media を書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    if(!doc.querySelector('.panel')) errs.push('class="panel" の要素が見つかりません');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/@media[^{]*max-width\s*:\s*600px/.test(cssText)) errs.push('@media (max-width: 600px) が見つかりません');
+    if(!/@media[^{]*\{[^}]*\.panel[^}]*color\s*:/s.test(cssText)) errs.push('メディアクエリ内で .panel の color が指定されていません');
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル11 — グラデーション背景',
+  eyebrow:'LEVEL 11 / CSS・グラデーション',
+  task:'class="gradient-box" のdivを作り、background に linear-gradient を使って2色以上のグラデーションをつけてください。',
+  explain:`
+    <p><b>linear-gradient()</b>は、複数の色を滑らかにつなげた背景を作る関数です。<code>background: linear-gradient(角度または方向, 色1, 色2);</code> の形で書きます。</p>
+    <p>方向は <code>to right</code>（左→右）や <code>135deg</code>（角度指定）などで指定できます。丸い形のグラデーションを作る <code>radial-gradient()</code> という関数もあります。</p>
+    <p>単色の背景よりも奥行きや華やかさを出しやすく、ヒーローセクションの背景などでよく使われます。</p>
+  `,
+  hint:'.gradient-box {\n  background: linear-gradient(135deg, #ffd6e8, #d6f5e3);\n  height: 160px;\n}',
+  html:`<!-- ここに書いてね -->\n`, css:`/* .gradient-box にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.gradient-box');
+    if(!el) errs.push('class="gradient-box" の要素が見つかりません');
+    else{
+      const bg=doc.defaultView.getComputedStyle(el).backgroundImage;
+      if(!bg||!bg.includes('gradient')) errs.push('.gradient-box に linear-gradient（または radial-gradient）が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル12 — ホバーとトランジション',
+  eyebrow:'LEVEL 12 / CSS・アニメーション',
+  task:'class="hover-card" のdivに、マウスを乗せる(hover)と大きさや位置が滑らかに変化する演出をつけてください（transition と transform を使用）。',
+  explain:`
+    <p><b>:hover</b>は、マウスカーソルが要素の上に乗っている間だけ適用されるCSSの疑似クラスです。<code>.hover-card:hover { ... }</code> のように書きます。</p>
+    <p><b>transform</b>：要素の見た目上の位置や大きさを変えるプロパティです。<code>translateY(-8px)</code>で上に移動、<code>scale(1.05)</code>で少し拡大、などができます。</p>
+    <p><b>transition</b>：プロパティが変化するときに、瞬時にではなく指定した時間をかけて滑らかに変化させます。<code>transition: transform 0.3s;</code> のように「何を」「何秒かけて」変化させるかを指定します。</p>
+  `,
+  hint:'.hover-card {\n  transition: transform 0.3s ease;\n}\n.hover-card:hover {\n  transform: translateY(-8px) scale(1.03);\n}',
+  html:`<div class="hover-card">マウスを乗せてみて</div>\n`, css:`/* .hover-card にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.hover-card');
+    if(!el) errs.push('class="hover-card" の要素が見つかりません（HTMLを消さないでください）');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/\.hover-card\s*{[^}]*transition\s*:/s.test(cssText)) errs.push('.hover-card に transition が設定されていません');
+    if(!/\.hover-card:hover\s*{[^}]*transform\s*:/s.test(cssText)) errs.push('.hover-card:hover に transform が設定されていません');
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル13 — 固定ヘッダー（position: sticky）',
+  eyebrow:'LEVEL 13 / CSS・position',
+  task:'class="sticky-header" のdivに position: sticky と top: 0 を指定して、スクロールしても上部に張り付くヘッダーを作ってください。',
+  explain:`
+    <p><b>position: sticky</b>は、通常は他の要素と同じようにページ内に配置されますが、指定した位置（<code>top: 0</code>など）までスクロールすると、その場に「貼りつく」ように固定される仕組みです。</p>
+    <p>ナビゲーションバーをスクロールしても常に見える位置に置いておきたいときによく使われます。<code>position: fixed</code> と似ていますが、sticky は親要素の範囲内でのみ効果があります。</p>
+  `,
+  hint:'.sticky-header {\n  position: sticky;\n  top: 0;\n  background: white;\n}',
+  html:`<div class="sticky-header">ヘッダー</div>\n<p>本文がたくさん続く想定です...</p>\n`, css:`/* .sticky-header にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.sticky-header');
+    if(!el) errs.push('class="sticky-header" の要素が見つかりません（HTMLを消さないでください）');
+    else{
+      const s=doc.defaultView.getComputedStyle(el);
+      if(s.position!=='sticky') errs.push('.sticky-header に position: sticky が設定されていません');
+      if(s.top!=='0px') errs.push('.sticky-header に top: 0 が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル14 — CSS変数（カスタムプロパティ）',
+  eyebrow:'LEVEL 14 / CSS・変数',
+  task:':root の中で --main-color という名前のCSS変数を定義し、class="var-box" の要素の背景色に var(--main-color) を使って適用してください。',
+  explain:`
+    <p>CSSにも「変数」があります。<code>:root { --変数名: 値; }</code>のように、ページ全体で使う色やサイズに名前をつけておくことができます。</p>
+    <p><b>:root</b>は、ページ全体（HTMLタグ全体）を指す特別なセレクタです。ここに変数を定義すると、ページのどこからでも使えます。</p>
+    <p>使うときは <code>var(--変数名)</code> と書きます。テーマカラーを一箇所にまとめておけば、後で色を変えたいときに1行直すだけで全体に反映できるのが大きなメリットです。このカフェサイトも、オレンジやネイビーなどの色をすべてCSS変数で管理しています。</p>
+  `,
+  hint:':root {\n  --main-color: #ffa101;\n}\n.var-box {\n  background-color: var(--main-color);\n}',
+  html:`<div class="var-box">色の見本</div>\n`, css:`/* :root で変数を定義し、.var-box に適用する */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.var-box');
+    if(!el) errs.push('class="var-box" の要素が見つかりません（HTMLを消さないでください）');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/:root\s*{[^}]*--[a-zA-Z-]+\s*:/s.test(cssText)) errs.push(':root の中でCSS変数（--で始まるプロパティ）が定義されていません');
+    if(el){
+      const bg=doc.defaultView.getComputedStyle(el).backgroundColor;
+      if(!bg||bg==='rgba(0, 0, 0, 0)'||bg==='transparent') errs.push('.var-box に背景色が適用されていません（var()の指定を確認してください）');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル15 — 写真の見せ方を整える',
+  eyebrow:'LEVEL 15 / CSS・object-fit',
+  task:'class="photo" のimg要素を、幅200px・高さ200pxの正方形にして、object-fit: cover で写真が歪まずに枠いっぱいに表示されるようにしてください。',
+  explain:`
+    <p>写真の縦横比と、表示したい枠の縦横比が違うと、そのままでは画像が歪んで伸びてしまいます。</p>
+    <p><b>object-fit: cover</b>を指定すると、画像の縦横比を保ったまま、枠からはみ出た部分を切り取って隙間なく表示してくれます。写真を正方形や円形のサムネイルにするときによく使われます。</p>
+    <p>さらに <b>object-position</b> というプロパティを使うと、「画像のどの部分を中心に表示するか」を調整できます。例えば <code>object-position: center 30%;</code>とすると、写真の少し上寄りが中心になります。被写体が思った位置に来ないときの調整に便利です。</p>
+  `,
+  hint:'.photo {\n  width: 200px;\n  height: 200px;\n  object-fit: cover;\n  object-position: center 30%;\n}',
+  html:`<img class="photo" src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400" alt="サンプル写真">\n`,
+  css:`/* .photo にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.photo');
+    if(!el) errs.push('class="photo" の要素が見つかりません（HTMLを消さないでください）');
+    else{
+      const s=doc.defaultView.getComputedStyle(el);
+      if(parseFloat(s.width)<190) errs.push('.photo の width が200px前後になっていません');
+      if(parseFloat(s.height)<190) errs.push('.photo の height が200px前後になっていません');
+      if(s.objectFit!=='cover') errs.push('.photo に object-fit: cover が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル16 — CSS Gridで二次元レイアウト',
+  eyebrow:'LEVEL 16 / CSS・Grid',
+  task:'class="grid-box" のdivに display: grid と grid-template-columns を指定して、中の要素を2列に並べてください。',
+  explain:`
+    <p><b>CSS Grid</b>は、Flexboxが「1方向（横または縦）の並び」を得意とするのに対して、「行と列」を同時に指定できる、二次元のレイアウト方法です。</p>
+    <p>親要素に <code>display: grid;</code> を指定し、<code>grid-template-columns: 1fr 1fr;</code>のように書くと、幅が均等な2列のレイアウトになります。<code>fr</code>は「余ったスペースをどの比率で分けるか」を表す単位です。</p>
+    <p>このカフェサイトでも、ヒーローセクションの「写真と文章を左右に並べる」部分や、メニュー一覧のレイアウトにGridを使っています。列数や比率を変えるだけで、複雑なレイアウトも簡単に組めるのが魅力です。</p>
+  `,
+  hint:'.grid-box {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 16px;\n}',
+  html:`<div class="grid-box">\n  <div>1</div>\n  <div>2</div>\n</div>\n`,
+  css:`/* .grid-box にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.grid-box');
+    if(!el) errs.push('class="grid-box" の要素が見つかりません（HTMLを消さないでください）');
+    else{
+      const s=doc.defaultView.getComputedStyle(el);
+      if(s.display!=='grid') errs.push('.grid-box に display: grid が設定されていません');
+      const cols=s.gridTemplateColumns.split(' ').filter(Boolean);
+      if(cols.length<2) errs.push('.grid-box の grid-template-columns が2列になっていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'css', title:'レベル17 — 疑似要素で飾りをつける',
+  eyebrow:'LEVEL 17 / CSS・疑似要素',
+  task:'class="label" の要素に ::before 疑似要素を使って、文字の前に小さな飾り（線や記号）を追加してください。',
+  explain:`
+    <p><b>::before</b>と<b>::after</b>は「疑似要素」と呼ばれ、HTMLに新しいタグを追加しなくても、CSSだけで要素の前後に飾りを挿入できる仕組みです。</p>
+    <p>使うときは必ず <code>content</code> プロパティとセットで書きます。<code>content: "";</code>（空文字）にして、widthやheight、backgroundで小さな図形を作ることもできますし、<code>content: "→";</code>のように記号や文字を入れることもできます。</p>
+    <p>このカフェサイトでは、見出しの上に付いている小さな一本線の飾りを ::before で作っています。HTMLを増やさずに装飾できるので、コードがすっきりします。</p>
+  `,
+  hint:'.label::before {\n  content: "";\n  display: inline-block;\n  width: 16px;\n  height: 2px;\n  background: #ffa101;\n  margin-right: 8px;\n}',
+  html:`<span class="label">おすすめ</span>\n`, css:`/* .label::before にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.label');
+    if(!el) errs.push('class="label" の要素が見つかりません（HTMLを消さないでください）');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/\.label::before\s*{[^}]*content\s*:/s.test(cssText)) errs.push('.label::before に content プロパティが設定されていません');
+    return errs;
+  }
+},
+// ========== JavaScript編 ==========
+{
+  section:'js', title:'レベル18 — 変数とconsole.log',
+  eyebrow:'LEVEL 18 / JS・変数',
+  task:'let で message という変数を作って好きな文字列を入れ、console.log(message); で出力してください。',
+  explain:`
+    <p>JavaScriptはホームページに「動き」をつけるためのプログラミング言語です。</p>
+    <p><b>変数</b>：値に名前をつけて保存する箱のようなものです。<code>let 変数名 = 値;</code> の形で作ります。</p>
+    <p><b>console.log()</b>：カッコの中身をブラウザの開発者ツールに出力する命令です。プログラムの動作確認によく使います。</p>
+  `,
+  hint:'let message = "こんにちは";\nconsole.log(message);',
+  html:`<!-- JSレベルではHTMLは不要です -->\n`, css:`/* 不要 */\n`, js:`// ここに書いてね\n`,
+  needsJs:true,
+  check(doc,logs){
+    const errs=[];
+    if(!logs.some(l=>l.trim().length>0)) errs.push('console.log で何も出力されていません');
+    return errs;
+  }
+},
+{
+  section:'js', title:'レベル19 — DOMを書き換える',
+  eyebrow:'LEVEL 19 / JS・DOM操作',
+  task:'document.querySelector("#target") で要素を取得し、textContent を書き換えて中身を変更してください。',
+  explain:`
+    <p><b>DOM</b>とは、ブラウザがHTMLを読み込んで作る「操作可能な部品の集まり」のことです。JavaScriptからDOMを操作することで、ページの中身を動的に変えられます。</p>
+    <p><b>document.querySelector("#id名")</b>：id属性を指定して要素を1つ取得します。CSSのセレクタと同じ書き方で、idの前には # をつけます。</p>
+    <p><b>textContent</b>：要素の中のテキストを取得・変更するプロパティです。<code>要素.textContent = "新しい文字";</code> で書き換えられます。</p>
+  `,
+  hint:'document.querySelector("#target").textContent = "書き換えました！";',
+  html:`<p id="target">元のテキスト</p>\n`, css:`/* 不要 */\n`, js:`// ここに書いてね\n`,
+  needsJs:true,
+  check(doc){
+    const errs=[];
+    const t=doc.querySelector('#target');
+    if(!t) errs.push('id="target" の要素が見つかりません（HTMLを消さないでください）');
+    else if(t.textContent.trim()==='元のテキスト'||t.textContent.trim()==='') errs.push('#target の中身が書き換わっていません');
+    return errs;
+  }
+},
+{
+  section:'js', title:'レベル20 — クリックイベント',
+  eyebrow:'LEVEL 20 / JS・イベント',
+  task:'#btn がクリックされたら #msg のtextContentが変わるように、addEventListener を使ってください。',
+  explain:`
+    <p><b>イベント</b>とは「クリックされた」「文字が入力された」などブラウザ上で起きる出来事のことです。</p>
+    <p><b>addEventListener("click", 関数)</b>：指定した要素にイベントを監視させ、イベントが起きたときに関数を実行します。</p>
+    <p>書き方：<code>要素.addEventListener("click", function() { ... });</code> または矢印関数で <code>() => { ... }</code> と書くこともできます。</p>
+  `,
+  hint:'document.querySelector("#btn").addEventListener("click", () => {\n  document.querySelector("#msg").textContent = "クリックされました！";\n});',
+  html:`<button id="btn">押してね</button>\n<p id="msg"></p>\n`, css:`/* 不要 */\n`, js:`// ここに書いてね\n`,
+  needsJs:true,
+  check(doc){
+    const errs=[];
+    const btn=doc.querySelector('#btn');
+    const msg=doc.querySelector('#msg');
+    if(!btn) errs.push('id="btn" のボタンが見つかりません（HTMLを消さないでください）');
+    if(!msg) errs.push('id="msg" の要素が見つかりません（HTMLを消さないでください）');
+    if(btn&&msg){
+      const before=msg.textContent;
+      btn.click();
+      if(msg.textContent===before||msg.textContent.trim()==='') errs.push('ボタンをクリックしても#msgの中身が変わりませんでした');
+    }
+    return errs;
+  }
+},
+{
+  section:'js', title:'レベル21 — フォームの値を取得する',
+  eyebrow:'LEVEL 21 / JS・フォーム操作',
+  task:'#showBtn がクリックされたら、#nameInput に入力された値を取得して #output に表示してください。',
+  explain:`
+    <p><b>input要素の value</b>：フォーム部品（入力欄）に入力されている値は <code>要素.value</code> で取得できます。</p>
+    <p>クリックイベントの中で値を取得し、別の要素のtextContentにセットすることで「入力→表示」という基本的な仕組みが作れます。フォームはお問い合わせページなどでよく使います。</p>
+  `,
+  hint:'document.querySelector("#showBtn").addEventListener("click", () => {\n  const name = document.querySelector("#nameInput").value;\n  document.querySelector("#output").textContent = name;\n});',
+  html:`<input id="nameInput" type="text" placeholder="名前を入力">\n<button id="showBtn">表示</button>\n<p id="output"></p>\n`,
+  css:`/* 不要 */\n`, js:`// ここに書いてね\n`,
+  needsJs:true,
+  check(doc){
+    const errs=[];
+    const input=doc.querySelector('#nameInput');
+    const btn=doc.querySelector('#showBtn');
+    const out=doc.querySelector('#output');
+    if(!input) errs.push('id="nameInput" が見つかりません');
+    if(!btn) errs.push('id="showBtn" が見つかりません');
+    if(!out) errs.push('id="output" が見つかりません');
+    if(input&&btn&&out){
+      input.value='テスト太郎';
+      btn.click();
+      if(!out.textContent.includes('テスト太郎')) errs.push('#output に入力した値が表示されませんでした');
+    }
+    return errs;
+  }
+},
+{
+  section:'js', title:'レベル22 — スクロールでふわっと表示する',
+  eyebrow:'LEVEL 22 / JS・IntersectionObserver',
+  task:'class="reveal-item" の要素が画面内に入ったタイミングを検知し、class="visible" を追加してふわっと表示させてください（IntersectionObserverを使用）。',
+  explain:`
+    <p><b>IntersectionObserver</b>は、指定した要素が画面（またはスクロール領域）に入ったかどうかを監視してくれる仕組みです。スクロールに合わせて要素をふわっと表示させる演出でよく使われます。</p>
+    <p>基本の書き方：</p>
+    <ul>
+      <li><code>new IntersectionObserver(コールバック関数)</code> で監視役（オブザーバー）を作る</li>
+      <li>コールバック関数は、対象要素が画面に入ったり出たりするたびに呼ばれ、引数 <code>entries</code>（配列）を受け取る</li>
+      <li>各 <code>entry.isIntersecting</code> が <code>true</code> のとき、その要素（<code>entry.target</code>）が画面内に入ったことを意味する</li>
+      <li>作ったオブザーバーの <code>.observe(要素)</code> を呼ぶことで、監視を開始する</li>
+    </ul>
+    <p>この学習ツールのプレビューでは、動作確認しやすいよう要素を監視し始めるとすぐに「画面に入った」状態をシミュレートします。実際のホームページでは、本当にスクロールして要素が見えたタイミングで発火します。</p>
+  `,
+  hint:'const target = document.querySelector(".reveal-item");\nconst observer = new IntersectionObserver((entries) => {\n  entries.forEach((entry) => {\n    if (entry.isIntersecting) {\n      entry.target.classList.add("visible");\n    }\n  });\n});\nobserver.observe(target);',
+  html:`<div class="reveal-item">スクロールで表示されます</div>\n`,
+  css:`.reveal-item {\n  opacity: 0;\n  transition: opacity 0.6s ease;\n}\n.reveal-item.visible {\n  opacity: 1;\n}\n`,
+  js:`// ここに書いてね\n`,
+  needsJs:true,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.reveal-item');
+    if(!el) errs.push('class="reveal-item" の要素が見つかりません（HTMLを消さないでください）');
+    else if(!el.classList.contains('visible')) errs.push('IntersectionObserver で .reveal-item に visible クラスが追加されていません（observe() を呼び忘れていないか確認してください）');
+    return errs;
+  }
+},
+// ========== 応用編 ==========
+{
+  section:'advanced', title:'レベル23 — CSSアニメーション（@keyframes）',
+  eyebrow:'ADVANCED / CSS・アニメーション',
+  task:'@keyframes で float という名前のアニメーションを定義し、class="floaty" の要素が上下にふわふわ動き続けるようにしてください。',
+  explain:`
+    <p><b>@keyframes</b>は、CSSだけでアニメーションの動きを定義できる仕組みです。<code>0%</code>（開始）から<code>100%</code>（終了）までの間に、途中の状態をいくつも指定できます。</p>
+    <p>書き方：<code>@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</code></p>
+    <p>作ったアニメーションは、<code>animation: float 3s ease-in-out infinite;</code>のように要素に適用します。「アニメーション名」「1回にかかる時間」「動きの緩急」「繰り返し回数（infiniteは無限）」の順で指定するのが基本です。</p>
+    <p>このカフェサイトでは、装飾イラストがふわふわ浮くアニメーションや、回転バッジがぐるぐる回るアニメーションにこの仕組みを使っています。</p>
+  `,
+  hint:'@keyframes float {\n  0%, 100% { transform: translateY(0); }\n  50% { transform: translateY(-10px); }\n}\n.floaty {\n  animation: float 3s ease-in-out infinite;\n}',
+  html:`<div class="floaty">ふわふわ</div>\n`, css:`/* @keyframes float を定義し、.floaty に適用する */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.floaty');
+    if(!el) errs.push('class="floaty" の要素が見つかりません（HTMLを消さないでください）');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/@keyframes\s+[a-zA-Z-]+\s*{/s.test(cssText)) errs.push('@keyframes でアニメーションが定義されていません');
+    if(el){
+      const s=doc.defaultView.getComputedStyle(el);
+      if(!s.animationName || s.animationName==='none') errs.push('.floaty に animation が適用されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'advanced', title:'レベル24 — すりガラス効果（backdrop-filter）',
+  eyebrow:'ADVANCED / CSS・backdrop-filter',
+  task:'class="glass-panel" の要素に、半透明の背景色と backdrop-filter: blur() を指定して、すりガラスのような効果をつけてください。',
+  explain:`
+    <p><b>backdrop-filter</b>は、要素の「背後にあるもの」にぼかしなどの効果をかけるプロパティです。要素自体に半透明の背景色（<code>rgba()</code>など）を指定し、そこに <code>backdrop-filter: blur(10px);</code>を組み合わせると、すりガラスやフロストガラスのような見た目になります。</p>
+    <p>スクロールしても常に上部に表示されるヘッダーなどで、下のコンテンツが透けて見えつつぼやける、という上品な演出によく使われます。このカフェサイトのヘッダーもこの仕組みです。</p>
+  `,
+  hint:'.glass-panel {\n  background: rgba(255, 255, 255, 0.6);\n  backdrop-filter: blur(10px);\n}',
+  html:`<div class="glass-panel">すりガラス風パネル</div>\n`, css:`/* .glass-panel にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.glass-panel');
+    if(!el) errs.push('class="glass-panel" の要素が見つかりません（HTMLを消さないでください）');
+    const styleEl=doc.querySelector('style');
+    const cssText=styleEl?styleEl.textContent:'';
+    if(!/\.glass-panel\s*{[^}]*backdrop-filter\s*:\s*blur/s.test(cssText)) errs.push('.glass-panel に backdrop-filter: blur() が設定されていません');
+    return errs;
+  }
+},
+{
+  section:'advanced', title:'レベル25 — 画像にフィルターをかける',
+  eyebrow:'ADVANCED / CSS・filter',
+  task:'class="mono-photo" のimg要素に filter: grayscale() を使って、写真を白黒（モノクロ）にしてください。',
+  explain:`
+    <p><b>filter</b>プロパティは、要素の見た目に画像加工のような効果をかけられる仕組みです。</p>
+    <ul>
+      <li><code>grayscale(1)</code>：白黒にする（0〜1の間で濃さを調整できます）</li>
+      <li><code>blur(10px)</code>：ぼかす</li>
+      <li><code>brightness(1.2)</code>：明るさを変える</li>
+      <li><code>contrast(1.1)</code>：コントラストを変える</li>
+    </ul>
+    <p>複数まとめて <code>filter: grayscale(0.3) contrast(1.05);</code>のように指定することもできます。このカフェサイトでは、背景写真をぼかしたり、アート風の写真を少しモノクロ寄りにするのに使っています。</p>
+  `,
+  hint:'.mono-photo {\n  filter: grayscale(1);\n}',
+  html:`<img class="mono-photo" src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400" alt="サンプル写真">\n`,
+  css:`/* .mono-photo にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.mono-photo');
+    if(!el) errs.push('class="mono-photo" の要素が見つかりません（HTMLを消さないでください）');
+    else{
+      const s=doc.defaultView.getComputedStyle(el);
+      if(!s.filter || s.filter==='none') errs.push('.mono-photo に filter が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'advanced', title:'レベル26 — 縦横比を固定する（aspect-ratio）',
+  eyebrow:'ADVANCED / CSS・aspect-ratio',
+  task:'class="ratio-box" のdivに aspect-ratio: 16 / 9 を指定して、幅に応じて高さが自動計算される横長の箱を作ってください。',
+  explain:`
+    <p><b>aspect-ratio</b>は、要素の「幅と高さの比率」を固定するプロパティです。<code>aspect-ratio: 16 / 9;</code>のように書くと、幅を決めるだけで高さが自動的にその比率で計算されます。</p>
+    <p>以前は高さをpaddingの裏技で計算する必要がありましたが、このプロパティのおかげで、写真や動画の枠を「常に4:3」「常に16:9」のように固定するのがとても簡単になりました。このカフェサイトの写真フレームにも使っています。</p>
+  `,
+  hint:'.ratio-box {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n  background: #ffa101;\n}',
+  html:`<div class="ratio-box"></div>\n`, css:`/* .ratio-box にスタイルを書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const el=doc.querySelector('.ratio-box');
+    if(!el) errs.push('class="ratio-box" の要素が見つかりません（HTMLを消さないでください）');
+    else{
+      const s=doc.defaultView.getComputedStyle(el);
+      if(!s.aspectRatio || s.aspectRatio==='auto') errs.push('.ratio-box に aspect-ratio が設定されていません');
+    }
+    return errs;
+  }
+},
+{
+  section:'advanced', title:'レベル27 — SVGで文字を円形に配置する',
+  eyebrow:'ADVANCED / SVG・textPath',
+  task:'用意されたSVGの円形パス（id="circlePath"）に沿って文字が並ぶよう、textPath を使ってください。',
+  explain:`
+    <p>SVGの中では、<code>&lt;path&gt;</code>で好きな形の線を描き、その線に沿って文字を配置することができます。円形のバッジやスタンプ風の回転する文字表現によく使われるテクニックです。</p>
+    <p>手順は2つです。①円や好きな形のpathを描き、<code>id</code>をつける。②<code>&lt;text&gt;</code>の中に<code>&lt;textPath href="#そのid"&gt;文字&lt;/textPath&gt;</code>を書く。</p>
+    <p>このカフェサイトのトップページにある、ぐるぐる回る円形の文字バッジもこの仕組みで作られています。</p>
+  `,
+  hint:'<svg viewBox="0 0 200 200">\n  <path id="circlePath" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/>\n  <text>\n    <textPath href="#circlePath">CAFE VERDANT ・ ROASTED WITH CARE ・</textPath>\n  </text>\n</svg>',
+  html:`<svg viewBox="0 0 200 200" width="200" height="200">\n  <path id="circlePath" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" fill="none"/>\n  <!-- ここに text と textPath を書いてね -->\n</svg>\n`,
+  css:`/* 必要であれば書く */\n`, js:`// まだ空でOK\n`,
+  check(doc){
+    const errs=[];
+    const textPath=doc.querySelector('textPath');
+    if(!textPath) errs.push('textPath 要素が見つかりません');
+    else{
+      const href=textPath.getAttribute('href')||textPath.getAttributeNS('http://www.w3.org/1999/xlink','href');
+      if(!href || !href.includes('circlePath')) errs.push('textPath の href が #circlePath を指していません');
+      if(!textPath.textContent || textPath.textContent.trim().length===0) errs.push('textPath の中に文字が入っていません');
+    }
+    return errs;
+  }
+},
+// ========== 総合 ==========
+{
+  section:'final', title:'レベル28 — 総合演習：カフェのホームページ',
+  eyebrow:'FINAL / 総合演習',
+  task:'これまでの集大成として、架空のお洒落なカフェのトップページを作ってください。header・nav・main・footer を持ち、main内には横並びのおすすめメニューカードを3つ以上、nav内には別ページ「menu.html」へのリンク（ページ遷移でドリンクメニュー全体を見る導線）を入れてください。さらに、営業時間などの詳細情報がボタンクリックで表示・非表示できるようにしてください。',
+  explain:`
+    <p>ここまで学んだHTML・CSS・JavaScriptをすべて使って、実際のカフェのホームページに近い構成を組み立てます。この工房で作られた本物の2ページ構成サンプル（トップページ＋メニューページ）もチャットで共有されているので、参考にしてください。</p>
+    <ul>
+      <li>header の中に h1（カフェの名前）</li>
+      <li>nav の中に a タグを2つ以上（その中の1つは <code>href="menu.html"</code> で「メニュー」などの文字にする＝ページ遷移でドリンクメニューへ移動する導線）</li>
+      <li>main の中に class="row"（display:flex）のdiv、その中に class="card" のおすすめメニューを3つ以上</li>
+      <li>footer（住所や営業時間など、内容は自由）</li>
+      <li>button id="toggleBtn" をクリックすると div id="extra"（営業時間などの詳細）の表示・非表示が切り替わる</li>
+    </ul>
+    <p>難しく感じたら、これまでのレベルのヒントを見返しながら1つずつ組み立てていきましょう。</p>
+  `,
+  hint:'HTML:\n<header><h1>Café Verdant</h1></header>\n<nav>\n  <a href="#about">お店について</a>\n  <a href="menu.html">メニュー</a>\n</nav>\n<main>\n  <div class="row">\n    <div class="card">カフェラテ</div>\n    <div class="card">ドリップコーヒー</div>\n    <div class="card">季節のタルト</div>\n  </div>\n  <button id="toggleBtn">営業時間を見る</button>\n  <div id="extra" style="display:none;">平日 8:00-19:00 / 土日 9:00-20:00</div>\n</main>\n<footer><p>&copy; 2026 Café Verdant</p></footer>\n\nCSS:\n.row { display:flex; gap:10px; }\n.card { padding:16px; border:1px solid #ccc; border-radius:8px; }\n\nJS:\ndocument.querySelector("#toggleBtn").addEventListener("click", () => {\n  const extra = document.querySelector("#extra");\n  extra.style.display = extra.style.display === "none" ? "block" : "none";\n});',
+  html:`<!-- ここにカフェのトップページを作ってね -->\n`, css:`/* ここにスタイルを書く */\n`, js:`// ここにJSを書く\n`,
+  needsJs:true,
+  check(doc){
+    const errs=[];
+    const header=doc.querySelector('header');
+    if(!header||!header.querySelector('h1')) errs.push('header内にh1（カフェ名）が見つかりません');
+    const nav=doc.querySelector('nav');
+    if(!nav||nav.querySelectorAll('a').length<2) errs.push('nav内にaタグが2つ以上見つかりません');
+    else{
+      const menuLink=Array.from(nav.querySelectorAll('a')).find(a=>(a.getAttribute('href')||'').includes('menu'));
+      if(!menuLink) errs.push('nav内に menu.html へのリンク（ページ遷移用）が見つかりません');
+    }
+    const main=doc.querySelector('main');
+    if(!main) errs.push('mainタグが見つかりません');
+    else{
+      const row=main.querySelector('.row');
+      if(!row) errs.push('main内に class="row" が見つかりません');
+      else{
+        const s=doc.defaultView.getComputedStyle(row);
+        if(s.display!=='flex') errs.push('.row に display:flex が設定されていません');
+        const cards=row.querySelectorAll('.card');
+        if(cards.length<3) errs.push('.row内の class="card"（おすすめメニュー）が3つ未満です');
+      }
+    }
+    if(!doc.querySelector('footer')) errs.push('footerタグが見つかりません');
+    const btn=doc.querySelector('#toggleBtn');
+    const extra=doc.querySelector('#extra');
+    if(!btn) errs.push('id="toggleBtn" のボタンが見つかりません');
+    if(!extra) errs.push('id="extra" の要素が見つかりません');
+    if(btn&&extra){
+      const before=doc.defaultView.getComputedStyle(extra).display;
+      btn.click();
+      const after=doc.defaultView.getComputedStyle(extra).display;
+      if(before===after) errs.push('ボタンをクリックしても#extraの表示状態が変わりませんでした');
+    }
+    return errs;
+  }
+}
+];
+
+let current=0;
+const done=new Array(LEVELS.length).fill(false);
+const sectionNames={html:'HTML編',css:'CSS編',js:'JAVASCRIPT編',advanced:'応用編',final:'総合演習'};
+
+const sidebarEl=document.getElementById('sidebarLevels');
+const progressNote=document.getElementById('progressNote');
+const eyebrowEl=document.getElementById('eyebrow');
+const titleEl=document.getElementById('title');
+const taskEl=document.getElementById('taskDesc');
+const explainEl=document.getElementById('explainBox');
+const hintBox=document.getElementById('hintBox');
+const hintToggle=document.getElementById('hintToggle');
+const htmlInput=document.getElementById('htmlInput');
+const cssInput=document.getElementById('cssInput');
+const jsInput=document.getElementById('jsInput');
+const htmlHighlight=document.getElementById('htmlHighlight');
+const cssHighlight=document.getElementById('cssHighlight');
+const jsHighlight=document.getElementById('jsHighlight');
+const preview=document.getElementById('preview');
+const hiddenCheck=document.getElementById('hiddenCheck');
+const resultEl=document.getElementById('result');
+
+// ===== シンタックスハイライト =====
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function tokenizeToHtml(code, re){
+  let out='', lastIndex=0;
+  for(const m of code.matchAll(re)){
+    out += escapeHtml(code.slice(lastIndex, m.index));
+    const type = Object.keys(m.groups).find(k=>m.groups[k]!==undefined);
+    out += `<span class="tok-${type}">${escapeHtml(m[0])}</span>`;
+    lastIndex = m.index + m[0].length;
+  }
+  out += escapeHtml(code.slice(lastIndex));
+  return out;
+}
+const HTML_RE = /(?<comment><!--[\s\S]*?-->)|(?<tagOpen><\/?[a-zA-Z][\w:-]*)|(?<attrName>(?<=\s)[a-zA-Z_:][\w:-]*(?=\s*=))|(?<attrValue>"[^"]*"|'[^']*')|(?<tagClose>\/?>)/g;
+const CSS_RE = /(?<comment>\/\*[\s\S]*?\*\/)|(?<string>"[^"]*"|'[^']*')|(?<atrule>@[a-zA-Z-]+)|(?<property>[a-zA-Z-]+(?=\s*:))|(?<hex>#[0-9a-fA-F]{3,8}\b)|(?<number>-?\d+\.?\d*(px|em|rem|%|vh|vw|s|ms|deg)?)|(?<brace>[{}])|(?<selectorPunct>[.:#][a-zA-Z][\w-]*)/g;
+const JS_KEYWORDS = 'const|let|var|function|return|if|else|for|while|do|break|continue|new|class|extends|try|catch|finally|throw|typeof|instanceof|in|of|this|true|false|null|undefined|async|await';
+const JS_RE = new RegExp(`(?<comment>\\/\\/.*|\\/\\*[\\s\\S]*?\\*\\/)|(?<string>\`(?:[^\`\\\\]|\\\\.)*\`|"(?:[^"\\\\]|\\\\.)*"|'(?:[^'\\\\]|\\\\.)*')|(?<keyword>\\b(?:${JS_KEYWORDS})\\b)|(?<func>\\b[a-zA-Z_$][\\w$]*(?=\\s*\\())|(?<number>\\b\\d+\\.?\\d*\\b)`,'g');
+
+function renderHighlight(textarea, layer, re){
+  layer.innerHTML = tokenizeToHtml(textarea.value, re) + '\n';
+  layer.scrollTop = textarea.scrollTop;
+  layer.scrollLeft = textarea.scrollLeft;
+}
+function syncScroll(textarea, layer){
+  layer.scrollTop = textarea.scrollTop;
+  layer.scrollLeft = textarea.scrollLeft;
+}
+
+function renderSidebar(){
+  sidebarEl.innerHTML='';
+  let lastSection=null;
+  LEVELS.forEach((lv,i)=>{
+    if(lv.section!==lastSection){
+      const label=document.createElement('div');
+      label.className='section-label '+lv.section;
+      label.textContent=sectionNames[lv.section];
+      sidebarEl.appendChild(label);
+      lastSection=lv.section;
+      var buildingWrap=document.createElement('div');
+      buildingWrap.className='building';
+      sidebarEl.appendChild(buildingWrap);
+    }
+    const wrap=sidebarEl.lastElementChild;
+    const d=document.createElement('div');
+    d.className='floor'+(i===current?' active':'')+(done[i]?' done':'');
+    const short=lv.title.split('—')[1]?.trim()||lv.title;
+    d.innerHTML=`<span class="num">${i+1}</span><span class="label">${short}</span>`;
+    d.onclick=()=>loadLevel(i);
+    wrap.appendChild(d);
+  });
+  const doneCount=done.filter(Boolean).length;
+  progressNote.textContent=`進捗: ${doneCount} / ${LEVELS.length} レベル完了`;
+}
+
+function buildDoc(html,css,js){
+  return `<!DOCTYPE html><html><head><style>${css}</style>
+<script>
+window.__logs = [];
+console.log = function(){ window.__logs.push(Array.prototype.slice.call(arguments).join(' ')); };
+// 学習用の簡易IntersectionObserver：observe()した要素をすぐ「画面に入った」ことにして
+// コールバックを呼ぶ（プレビュー上でスクロールしなくても動作を確認できるようにするため）
+window.IntersectionObserver = function(callback){
+  this.observe = function(target){
+    if(!target) return;
+    setTimeout(() => {
+      callback([{ isIntersecting: true, target: target }]);
+    }, 0);
+  };
+  this.unobserve = function(){};
+  this.disconnect = function(){};
+};
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+${js}
+  } catch(e) { window.__logs.push('ERROR: ' + e.message); }
+});
+<\/script>
+</head><body>${html}
+</body></html>`;
+}
+
+let previewDebounce;
+function updatePreview(){
+  clearTimeout(previewDebounce);
+  previewDebounce = setTimeout(() => {
+    preview.srcdoc=buildDoc(htmlInput.value,cssInput.value,jsInput.value);
+  }, 250);
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.getElementById('htmlWrap').classList.toggle('active-editor',tab==='html');
+  document.getElementById('cssWrap').classList.toggle('active-editor',tab==='css');
+  document.getElementById('jsWrap').classList.toggle('active-editor',tab==='js');
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+
+function loadLevel(i){
+  current=i;
+  const lv=LEVELS[i];
+  eyebrowEl.textContent=lv.eyebrow;
+  titleEl.textContent=lv.title;
+  taskEl.textContent=lv.task;
+  explainEl.innerHTML=lv.explain;
+  hintBox.textContent=lv.hint;
+  hintBox.classList.remove('show');
+  hintToggle.textContent='解答例を見る ▾';
+  mobileTitle.textContent=lv.title;
+  closeDrawer();
+  htmlInput.value=lv.html;
+  cssInput.value=lv.css;
+  jsInput.value=lv.js;
+  renderHighlight(htmlInput, htmlHighlight, HTML_RE);
+  renderHighlight(cssInput, cssHighlight, CSS_RE);
+  renderHighlight(jsInput, jsHighlight, JS_RE);
+  switchTab(lv.needsJs?'js':'html');
+  resultEl.textContent='';
+  resultEl.className='result';
+  updatePreview();
+  renderSidebar();
+}
+
+hintToggle.onclick=()=>{
+  hintBox.classList.toggle('show');
+  hintToggle.textContent=hintBox.classList.contains('show')?'解答例を隠す ▴':'解答例を見る ▾';
+};
+
+// タグの自動補完（<p> と打つと </p> を自動挿入する）
+const VOID_ELEMENTS = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+function autoCloseTag(e){
+  if(e.inputType !== 'insertText' || e.data !== '>') return;
+  const ta = e.target;
+  const pos = ta.selectionStart;
+  const before = ta.value.slice(0, pos);
+  const m = before.match(/<([a-zA-Z][a-zA-Z0-9]*)((?:\s+[^<>]*)?)>$/);
+  if(!m) return;
+  const tagName = m[1];
+  const attrs = m[2];
+  if(VOID_ELEMENTS.has(tagName.toLowerCase())) return; // img等は閉じタグ不要
+  if(/\/\s*$/.test(attrs)) return; // <br/> のような自己終了タグは対象外
+  const closeTag = `</${tagName}>`;
+  ta.value = before + closeTag + ta.value.slice(pos);
+  ta.selectionStart = ta.selectionEnd = pos;
+}
+htmlInput.addEventListener('input', autoCloseTag);
+htmlInput.addEventListener('input',updatePreview);
+cssInput.addEventListener('input',updatePreview);
+jsInput.addEventListener('input',updatePreview);
+
+// シンタックスハイライトの再描画とスクロール同期
+htmlInput.addEventListener('input', () => renderHighlight(htmlInput, htmlHighlight, HTML_RE));
+cssInput.addEventListener('input', () => renderHighlight(cssInput, cssHighlight, CSS_RE));
+jsInput.addEventListener('input', () => renderHighlight(jsInput, jsHighlight, JS_RE));
+htmlInput.addEventListener('scroll', () => syncScroll(htmlInput, htmlHighlight));
+cssInput.addEventListener('scroll', () => syncScroll(cssInput, cssHighlight));
+jsInput.addEventListener('scroll', () => syncScroll(jsInput, jsHighlight));
+
+// Tabキーで、直後にある閉じタグ（例: </p>）の外側へカーソルを移動する
+htmlInput.addEventListener('keydown', (e) => {
+  if(e.key !== 'Tab') return;
+  const pos = htmlInput.selectionStart;
+  if(htmlInput.selectionStart !== htmlInput.selectionEnd) return; // 範囲選択中は通常のTab動作
+  const after = htmlInput.value.slice(pos);
+  const m = after.match(/^<\/[a-zA-Z][a-zA-Z0-9]*>/);
+  if(m){
+    e.preventDefault();
+    htmlInput.selectionStart = htmlInput.selectionEnd = pos + m[0].length;
+  }
+});
+
+document.getElementById('checkBtn').onclick=()=>{
+  const lv=LEVELS[current];
+  hiddenCheck.srcdoc=buildDoc(htmlInput.value,cssInput.value,jsInput.value);
+  hiddenCheck.onload=()=>{
+    const doc=hiddenCheck.contentDocument;
+    const logs=(hiddenCheck.contentWindow.__logs)||[];
+    let errs=[];
+    try{
+      errs=lv.check(doc,logs)||[];
+    }catch(e){
+      errs=['検査中にエラーが起きました: '+e.message];
+    }
+    if(errs.length===0){
+      done[current]=true;
+      resultEl.className='result ok';
+      resultEl.textContent='✓ クリア！ このレベルは完了です。';
+      renderSidebar();
+      setTimeout(()=>showClear(current>=LEVELS.length-1),250);
+    }else{
+      resultEl.className='result ng';
+      resultEl.innerHTML='✕ まだ足りない部分があります：<ul>'+errs.map(e=>`<li>${e}</li>`).join('')+'</ul>';
+    }
+  };
+};
+
+// ===== ダークモード切替・スマホ用ドロワー =====
+const mobileTitle=document.getElementById('mobileTitle');
+const themeToggle=document.getElementById('themeToggle');
+function syncThemeButton(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  themeToggle.setAttribute('aria-label',dark?'ライトモードに切り替え':'ダークモードに切り替え');
+}
+themeToggle.addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{ localStorage.setItem('dojo-theme',next); }catch(e){}
+  syncThemeButton();
+});
+syncThemeButton();
+function closeDrawer(){ document.body.classList.remove('drawer-open'); }
+document.getElementById('menuBtn').addEventListener('click',()=>document.body.classList.add('drawer-open'));
+document.getElementById('drawerBackdrop').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeDrawer(); });
+
+// ===== クリア演出（モーダル＋紙吹雪） =====
+const clearModal=document.getElementById('clearModal');
+const modalTitle=document.getElementById('modalTitle');
+const modalText=document.getElementById('modalText');
+const modalNext=document.getElementById('modalNext');
+const modalStay=document.getElementById('modalStay');
+function launchConfetti(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box=document.getElementById('confetti');
+  const colors=['#FF8FAB','#FFB38A','#FFD976','#7ED6B8','#B9A7F0','#8FC9F0'];
+  for(let i=0;i<44;i++){
+    const el=document.createElement('span');
+    el.className='confetti-piece';
+    const size=7+Math.random()*8;
+    el.style.left=(Math.random()*100)+'%';
+    el.style.width=size+'px';
+    el.style.height=(Math.random()<0.5?size:size*0.55)+'px';
+    el.style.borderRadius=Math.random()<0.5?'50%':'3px';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.setProperty('--d',(1.8+Math.random()*1.6)+'s');
+    el.style.setProperty('--x',((Math.random()-0.5)*160)+'px');
+    el.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    el.style.animationDelay=(Math.random()*0.5)+'s';
+    box.appendChild(el);
+    setTimeout(()=>el.remove(),4200);
+  }
+}
+function showClear(isLast){
+  if(isLast){
+    modalTitle.textContent='全レベルクリア！';
+    modalText.textContent='ホームページを作れるレベルに到達しました。ここまでの道のり、本当におつかれさまでした！';
+    modalNext.style.display='none';
+    modalStay.textContent='とじる';
+  }else{
+    modalTitle.textContent='クリア！';
+    modalText.textContent='このレベルは完了です。次のレベルに進みましょう。';
+    modalNext.style.display='';
+    modalStay.textContent='このレベルに残る';
+  }
+  clearModal.classList.add('show');
+  launchConfetti();
+}
+modalStay.onclick=()=>clearModal.classList.remove('show');
+modalNext.onclick=()=>{ clearModal.classList.remove('show'); if(current<LEVELS.length-1) loadLevel(current+1); };
+clearModal.addEventListener('click',(e)=>{ if(e.target===clearModal) clearModal.classList.remove('show'); });
+
+loadLevel(0);
+</script>
+</body>
+</html>
