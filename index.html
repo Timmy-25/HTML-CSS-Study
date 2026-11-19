@@ -45,6 +45,8 @@
   --tok-brace: #3F8FB0;
   --tok-sel: #B452A8;
   --tok-func: #6F55C9;
+  --sky-soft: #E3F1FB;
+  --sky-deep: #2F7BB0;
   color-scheme: light;
 }
 :root[data-theme="dark"]{
@@ -85,6 +87,8 @@
   --tok-brace: #8FC9F0;
   --tok-sel: #E39AF0;
   --tok-func: #CBBBFF;
+  --sky-soft: #1E3040;
+  --sky-deep: #8FC9F0;
   color-scheme: dark;
 }
 html{-webkit-text-size-adjust:100%;}
@@ -158,6 +162,7 @@ textarea::selection{background:rgba(255,143,171,0.28);}
 .section-label.css{background:var(--mint-soft);color:var(--mint-deep);}
 .section-label.js{background:var(--butter-soft);color:var(--butter-deep);}
 .section-label.advanced{background:var(--pink-soft);color:var(--pink-deep);}
+.section-label.multi{background:var(--sky-soft);color:var(--sky-deep);}
 .section-label.final{background:var(--lavender-soft);color:var(--lavender-deep);}
 .building{
   display:flex;
@@ -427,6 +432,30 @@ button.check:active{transform:scale(0.97);}
 .result ul{margin:4px 0 0;padding-left:18px;}
 @keyframes pop{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
 
+/* ---------- 複数ページ用：タブ・アドレスバー ---------- */
+.tabs{overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{white-space:nowrap;flex-shrink:0;}
+.addr-bar{display:none;align-items:center;gap:8px;padding:6px 12px;background:var(--surface-2);border-top:1px solid var(--line);}
+.preview-pane.multi .addr-bar{display:flex;}
+.addr-back{border:none;cursor:pointer;border-radius:999px;padding:5px 12px;background:var(--surface);color:var(--text-dim);font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:12px;}
+.addr-back:disabled{opacity:.45;cursor:default;}
+.addr-url{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:4px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.preview-note{display:none;padding:7px 14px;background:var(--butter-soft);color:var(--butter-deep);font-size:12px;font-weight:700;line-height:1.5;}
+.preview-note.show{display:block;}
+
+/* ---------- 進捗の保存まわり ---------- */
+.hint-toggle.subtle{background:var(--surface-2);color:var(--text-dim);margin-left:6px;}
+.save-note{font-size:11px;color:var(--text-dim);line-height:1.6;margin:8px 4px 0;}
+.save-note.warn{color:var(--red);font-weight:700;}
+.reset-all{
+  margin:10px 4px 0;align-self:flex-start;
+  border:1.5px solid var(--line);background:var(--surface);color:var(--text-dim);
+  font-family:'Zen Maru Gothic',sans-serif;font-size:11.5px;font-weight:700;
+  padding:6px 14px;border-radius:999px;cursor:pointer;transition:color .15s,border-color .15s;
+}
+.reset-all:hover{color:var(--red);border-color:var(--red);}
+
 /* ---------- クリア時のモーダルと紙吹雪 ---------- */
 .modal-backdrop{
   position:fixed;inset:0;
@@ -556,6 +585,7 @@ button.check:active{transform:scale(0.97);}
   }
   body.drawer-open .drawer-backdrop{display:block;}
   .floor{padding:12px 10px;}
+  .tab{padding:6px 12px;}
 
   .main{display:block;}
   .topbar{max-height:none;overflow:visible;padding:16px 16px 10px;}
@@ -622,6 +652,8 @@ button.check:active{transform:scale(0.97);}
   </div>
   <div id="sidebarLevels"></div>
   <div class="progress-note" id="progressNote"></div>
+  <div class="save-note" id="saveNote"></div>
+  <button class="reset-all" id="resetAllBtn" type="button">進捗をリセット</button>
 </div>
 
 <div class="main">
@@ -631,19 +663,25 @@ button.check:active{transform:scale(0.97);}
     <div class="task" id="taskDesc"></div>
     <div class="explain" id="explainBox"></div>
     <span class="hint-toggle" id="hintToggle">解答例を見る ▾</span>
+    <span class="hint-toggle subtle" id="resetLevelBtn">コードを最初の状態に戻す</span>
     <div class="hint-box" id="hintBox"></div>
   </div>
 
   <div class="workspace">
     <div class="editor-pane">
       <div class="tabs">
-        <div class="tab html-tab active" data-tab="html">HTML</div>
-        <div class="tab css-tab" data-tab="css">CSS</div>
-        <div class="tab js-tab" data-tab="js">JavaScript</div>
+        <div class="tab html-tab active" data-tab="html" id="tabHtml">HTML</div>
+        <div class="tab html-tab" data-tab="html2" id="tabHtml2" style="display:none"></div>
+        <div class="tab css-tab" data-tab="css" id="tabCss">CSS</div>
+        <div class="tab js-tab" data-tab="js" id="tabJs">JavaScript</div>
       </div>
       <div class="code-wrap active-editor" id="htmlWrap">
         <pre class="highlight-layer" id="htmlHighlight"></pre>
         <textarea id="htmlInput" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
+      </div>
+      <div class="code-wrap" id="html2Wrap">
+        <pre class="highlight-layer" id="html2Highlight"></pre>
+        <textarea id="html2Input" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
       </div>
       <div class="code-wrap" id="cssWrap">
         <pre class="highlight-layer" id="cssHighlight"></pre>
@@ -656,6 +694,11 @@ button.check:active{transform:scale(0.97);}
     </div>
     <div class="preview-pane">
       <div class="pane-head">プレビュー（入力するとすぐ反映されます）</div>
+      <div class="addr-bar" id="addrBar">
+        <button class="addr-back" id="addrBack" type="button" disabled>戻る</button>
+        <div class="addr-url" id="addrUrl">index.html</div>
+      </div>
+      <div class="preview-note" id="previewNote"></div>
       <iframe class="preview-frame" id="preview"></iframe>
     </div>
   </div>
@@ -666,7 +709,18 @@ button.check:active{transform:scale(0.97);}
   </div>
 </div>
 
-<iframe id="hiddenCheck" style="display:none"></iframe>
+<iframe id="hiddenCheck" aria-hidden="true" style="position:fixed;left:-10000px;top:0;width:900px;height:700px;border:0;visibility:hidden"></iframe>
+
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-title" id="confirmTitle"></div>
+    <p class="modal-text" id="confirmText"></p>
+    <div class="modal-actions">
+      <button class="btn-soft" id="confirmNo" type="button">やめる</button>
+      <button class="btn-main" id="confirmYes" type="button">OK</button>
+    </div>
+  </div>
+</div>
 
 <div id="confetti"></div>
 <div class="modal-backdrop" id="clearModal">
@@ -685,7 +739,7 @@ button.check:active{transform:scale(0.97);}
 const LEVELS = [
 // ========== HTML編 ==========
 {
-  section:'html', title:'レベル1 — 見出しと段落',
+  section:'html', id:'html-headings', title:'レベル1 — 見出しと段落',
   eyebrow:'LEVEL 01 / HTML・見出しと段落',
   task:'h1タグで見出し「ようこそ」を、pタグで自己紹介の一文を1つ作ってください。',
   explain:`
@@ -707,7 +761,7 @@ const LEVELS = [
   }
 },
 {
-  section:'html', title:'レベル2 — リンク',
+  section:'html', id:'html-link', title:'レベル2 — リンク',
   eyebrow:'LEVEL 02 / HTML・リンク',
   task:'aタグで、href属性に "https://example.com" を指定したリンクを作ってください。リンクの文字は自由です。',
   explain:`
@@ -731,7 +785,7 @@ const LEVELS = [
   }
 },
 {
-  section:'html', title:'レベル3 — 画像',
+  section:'html', id:'html-image', title:'レベル3 — 画像',
   eyebrow:'LEVEL 03 / HTML・画像',
   task:'imgタグで、src属性に "https://placehold.co/300x200" を、alt属性に画像の説明文を指定してください。',
   explain:`
@@ -753,7 +807,7 @@ const LEVELS = [
   }
 },
 {
-  section:'html', title:'レベル4 — リストとナビゲーション',
+  section:'html', id:'html-list-nav', title:'レベル4 — リストとナビゲーション',
   eyebrow:'LEVEL 04 / HTML・リスト',
   task:'navタグの中に、ulとliを使って3つ以上のメニュー項目を持つリストを作ってください。',
   explain:`
@@ -776,7 +830,7 @@ const LEVELS = [
   }
 },
 {
-  section:'html', title:'レベル5 — ページの構造タグ',
+  section:'html', id:'html-structure', title:'レベル5 — ページの構造タグ',
   eyebrow:'LEVEL 05 / HTML・セマンティックタグ',
   task:'header、main、footerの3つのタグを使って、ページの大枠を作ってください（中身は自由）。',
   explain:`
@@ -800,7 +854,7 @@ const LEVELS = [
 },
 // ========== CSS編 ==========
 {
-  section:'css', title:'レベル6 — クラスと背景色',
+  section:'css', id:'css-class-bg', title:'レベル6 — クラスと背景色',
   eyebrow:'LEVEL 06 / CSS・クラスと色',
   task:'class="box" を持つdivを1つ作り、CSSで背景色(background-color)を指定してください。',
   explain:`
@@ -822,7 +876,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル7 — ボックスモデル',
+  section:'css', id:'css-boxmodel', title:'レベル7 — ボックスモデル',
   eyebrow:'LEVEL 07 / CSS・ボックスモデル',
   task:'class="card" のdivを作り、padding を16px以上、border を1px以上つけてください。',
   explain:`
@@ -848,7 +902,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル8 — Flexboxで横並び',
+  section:'css', id:'css-flex', title:'レベル8 — Flexboxで横並び',
   eyebrow:'LEVEL 08 / CSS・Flexbox',
   task:'class="row" のdivの中にdivを3つ入れ、.row に display:flex を指定して横並びにしてください。',
   explain:`
@@ -871,7 +925,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル9 — 角丸と影',
+  section:'css', id:'css-radius-shadow', title:'レベル9 — 角丸と影',
   eyebrow:'LEVEL 09 / CSS・装飾',
   task:'class="tile" のdivに border-radius と box-shadow の両方をつけてください。',
   explain:`
@@ -894,7 +948,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル10 — レスポンシブ対応',
+  section:'css', id:'css-responsive', title:'レベル10 — レスポンシブ対応',
   eyebrow:'LEVEL 10 / CSS・メディアクエリ',
   task:'class="panel" のdivを作り、@media (max-width: 600px) の中で文字色(color)が変わるように指定してください。',
   explain:`
@@ -915,7 +969,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル11 — グラデーション背景',
+  section:'css', id:'css-gradient', title:'レベル11 — グラデーション背景',
   eyebrow:'LEVEL 11 / CSS・グラデーション',
   task:'class="gradient-box" のdivを作り、background に linear-gradient を使って2色以上のグラデーションをつけてください。',
   explain:`
@@ -937,7 +991,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル12 — ホバーとトランジション',
+  section:'css', id:'css-hover-transition', title:'レベル12 — ホバーとトランジション',
   eyebrow:'LEVEL 12 / CSS・アニメーション',
   task:'class="hover-card" のdivに、マウスを乗せる(hover)と大きさや位置が滑らかに変化する演出をつけてください（transition と transform を使用）。',
   explain:`
@@ -959,7 +1013,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル13 — 固定ヘッダー（position: sticky）',
+  section:'css', id:'css-sticky', title:'レベル13 — 固定ヘッダー（position: sticky）',
   eyebrow:'LEVEL 13 / CSS・position',
   task:'class="sticky-header" のdivに position: sticky と top: 0 を指定して、スクロールしても上部に張り付くヘッダーを作ってください。',
   explain:`
@@ -981,7 +1035,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル14 — CSS変数（カスタムプロパティ）',
+  section:'css', id:'css-variables', title:'レベル14 — CSS変数（カスタムプロパティ）',
   eyebrow:'LEVEL 14 / CSS・変数',
   task:':root の中で --main-color という名前のCSS変数を定義し、class="var-box" の要素の背景色に var(--main-color) を使って適用してください。',
   explain:`
@@ -1006,7 +1060,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル15 — 写真の見せ方を整える',
+  section:'css', id:'css-object-fit', title:'レベル15 — 写真の見せ方を整える',
   eyebrow:'LEVEL 15 / CSS・object-fit',
   task:'class="photo" のimg要素を、幅200px・高さ200pxの正方形にして、object-fit: cover で写真が歪まずに枠いっぱいに表示されるようにしてください。',
   explain:`
@@ -1031,7 +1085,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル16 — CSS Gridで二次元レイアウト',
+  section:'css', id:'css-grid', title:'レベル16 — CSS Gridで二次元レイアウト',
   eyebrow:'LEVEL 16 / CSS・Grid',
   task:'class="grid-box" のdivに display: grid と grid-template-columns を指定して、中の要素を2列に並べてください。',
   explain:`
@@ -1056,7 +1110,7 @@ const LEVELS = [
   }
 },
 {
-  section:'css', title:'レベル17 — 疑似要素で飾りをつける',
+  section:'css', id:'css-pseudo', title:'レベル17 — 疑似要素で飾りをつける',
   eyebrow:'LEVEL 17 / CSS・疑似要素',
   task:'class="label" の要素に ::before 疑似要素を使って、文字の前に小さな飾り（線や記号）を追加してください。',
   explain:`
@@ -1078,7 +1132,7 @@ const LEVELS = [
 },
 // ========== JavaScript編 ==========
 {
-  section:'js', title:'レベル18 — 変数とconsole.log',
+  section:'js', id:'js-variables', title:'レベル18 — 変数とconsole.log',
   eyebrow:'LEVEL 18 / JS・変数',
   task:'let で message という変数を作って好きな文字列を入れ、console.log(message); で出力してください。',
   explain:`
@@ -1096,7 +1150,7 @@ const LEVELS = [
   }
 },
 {
-  section:'js', title:'レベル19 — DOMを書き換える',
+  section:'js', id:'js-dom', title:'レベル19 — DOMを書き換える',
   eyebrow:'LEVEL 19 / JS・DOM操作',
   task:'document.querySelector("#target") で要素を取得し、textContent を書き換えて中身を変更してください。',
   explain:`
@@ -1116,7 +1170,7 @@ const LEVELS = [
   }
 },
 {
-  section:'js', title:'レベル20 — クリックイベント',
+  section:'js', id:'js-click', title:'レベル20 — クリックイベント',
   eyebrow:'LEVEL 20 / JS・イベント',
   task:'#btn がクリックされたら #msg のtextContentが変わるように、addEventListener を使ってください。',
   explain:`
@@ -1142,7 +1196,7 @@ const LEVELS = [
   }
 },
 {
-  section:'js', title:'レベル21 — フォームの値を取得する',
+  section:'js', id:'js-form', title:'レベル21 — フォームの値を取得する',
   eyebrow:'LEVEL 21 / JS・フォーム操作',
   task:'#showBtn がクリックされたら、#nameInput に入力された値を取得して #output に表示してください。',
   explain:`
@@ -1170,7 +1224,7 @@ const LEVELS = [
   }
 },
 {
-  section:'js', title:'レベル22 — スクロールでふわっと表示する',
+  section:'js', id:'js-observer', title:'レベル22 — スクロールでふわっと表示する',
   eyebrow:'LEVEL 22 / JS・IntersectionObserver',
   task:'class="reveal-item" の要素が画面内に入ったタイミングを検知し、class="visible" を追加してふわっと表示させてください（IntersectionObserverを使用）。',
   explain:`
@@ -1199,7 +1253,7 @@ const LEVELS = [
 },
 // ========== 応用編 ==========
 {
-  section:'advanced', title:'レベル23 — CSSアニメーション（@keyframes）',
+  section:'advanced', id:'adv-keyframes', title:'レベル23 — CSSアニメーション（@keyframes）',
   eyebrow:'ADVANCED / CSS・アニメーション',
   task:'@keyframes で float という名前のアニメーションを定義し、class="floaty" の要素が上下にふわふわ動き続けるようにしてください。',
   explain:`
@@ -1225,7 +1279,7 @@ const LEVELS = [
   }
 },
 {
-  section:'advanced', title:'レベル24 — すりガラス効果（backdrop-filter）',
+  section:'advanced', id:'adv-backdrop', title:'レベル24 — すりガラス効果（backdrop-filter）',
   eyebrow:'ADVANCED / CSS・backdrop-filter',
   task:'class="glass-panel" の要素に、半透明の背景色と backdrop-filter: blur() を指定して、すりガラスのような効果をつけてください。',
   explain:`
@@ -1245,7 +1299,7 @@ const LEVELS = [
   }
 },
 {
-  section:'advanced', title:'レベル25 — 画像にフィルターをかける',
+  section:'advanced', id:'adv-filter', title:'レベル25 — 画像にフィルターをかける',
   eyebrow:'ADVANCED / CSS・filter',
   task:'class="mono-photo" のimg要素に filter: grayscale() を使って、写真を白黒（モノクロ）にしてください。',
   explain:`
@@ -1273,7 +1327,7 @@ const LEVELS = [
   }
 },
 {
-  section:'advanced', title:'レベル26 — 縦横比を固定する（aspect-ratio）',
+  section:'advanced', id:'adv-aspect-ratio', title:'レベル26 — 縦横比を固定する（aspect-ratio）',
   eyebrow:'ADVANCED / CSS・aspect-ratio',
   task:'class="ratio-box" のdivに aspect-ratio: 16 / 9 を指定して、幅に応じて高さが自動計算される横長の箱を作ってください。',
   explain:`
@@ -1294,7 +1348,7 @@ const LEVELS = [
   }
 },
 {
-  section:'advanced', title:'レベル27 — SVGで文字を円形に配置する',
+  section:'advanced', id:'adv-svg-textpath', title:'レベル27 — SVGで文字を円形に配置する',
   eyebrow:'ADVANCED / SVG・textPath',
   task:'用意されたSVGの円形パス（id="circlePath"）に沿って文字が並ぶよう、textPath を使ってください。',
   explain:`
@@ -1317,57 +1371,418 @@ const LEVELS = [
     return errs;
   }
 },
+// ========== 複数ページ編 ==========
+{
+  section:'multi', id:'multi-link-css', title:'レベル28 — CSSを別ファイルにして読み込む',
+  eyebrow:'LEVEL 28 / 複数ページ・外部CSS',
+  multi:{ html2:null, css:true, js:false },
+  task:'index.html の <head> の中に <link> タグを書いて、別ファイル style.css を読み込んでください。',
+  explain:`
+    <p>ここまでは、HTMLとCSSを1つの画面にまとめて考えてきました。でも実際のホームページでは、<b>ファイルを分けて</b>作るのが普通です。HTMLは <code>index.html</code>、見た目のルールは <code>style.css</code> のように、役割ごとに別のファイルにします。</p>
+    <p>この画面でも、エディタ上部のタブが「ファイル」になっています。<b>index.html</b> と <b>style.css</b> のタブを切り替えて、中身を見てみましょう。</p>
+    <p>HTMLから別のCSSファイルを使うには、<code>&lt;head&gt;</code> の中に <b>&lt;link&gt;タグ</b> を書いて呼び出します。</p>
+    <ul>
+      <li><code>rel="stylesheet"</code>：「このファイルはCSS（スタイルシート）です」という意味</li>
+      <li><code>href="style.css"</code>：CSSファイルの名前（場所）。大文字・小文字も正確に合わせます</li>
+    </ul>
+    <p>link タグを書くまでは、style.css の内容はプレビューに反映されません。書いた瞬間に見た目が変わるのを確かめてみましょう。ファイルを分けると、複数のページで同じCSSを使い回せるのが大きなメリットです（次のレベルから体験します）。</p>
+  `,
+  hint:'index.html の <head> の中に：\n<link rel="stylesheet" href="style.css">',
+  html:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>マイカフェ</title>
+  <!-- ここに style.css を読み込む link タグを書く -->
+</head>
+<body>
+  <h1>Hello Cafe</h1>
+  <p>CSSを読み込むと、見た目が変わります。</p>
+</body>
+</html>
+`,
+  html2:'',
+  css:`h1 {
+  color: #e0507d;
+  font-size: 40px;
+}
+p {
+  color: #666;
+}
+`,
+  js:'',
+  async checkMulti(ctx){
+    const errs=[];
+    const d=ctx.parse('index.html');
+    const links=ctx.styleLinks(d);
+    if(links.length===0){ errs.push('index.html に <link rel="stylesheet" href="style.css"> が見つかりません'); return errs; }
+    const l=links.find(x=>ctx.norm(x.getAttribute('href'))==='style.css');
+    if(!l){ errs.push('link の href が「style.css」になっていません（ファイル名の大文字・小文字も確認しましょう）'); return errs; }
+    if(!d.head.contains(l)) errs.push('link タグは <head> の中に書きましょう');
+    return errs;
+  }
+},
+{
+  section:'multi', id:'multi-two-pages', title:'レベル29 — 2ページ目を作ってリンクでつなぐ',
+  eyebrow:'LEVEL 29 / 複数ページ・ページ遷移',
+  multi:{ html2:'menu.html', css:true, js:false },
+  task:'index.html に menu.html へのリンクを、menu.html に index.html へ戻るリンクを書いてください。さらに menu.html の <ul> には、飲み物の名前を入れた <li> を3つ以上書いてください。',
+  explain:`
+    <p>ホームページの「ページ」は、1つ1つが別のHTMLファイルです。トップページは <code>index.html</code>、メニューのページは <code>menu.html</code> のように、ファイルを増やしていきます。</p>
+    <p>エディタ上部のタブに <b>index.html</b> と <b>menu.html</b> が並んでいます。それぞれが別のページです。</p>
+    <p>ページ同士は <b>&lt;a&gt;タグ</b> でつなぎます。同じフォルダにあるファイルへは、ファイル名だけを <code>href</code> に書けばOKです（<b>相対パス</b>と呼びます）。</p>
+    <ul>
+      <li>トップページから：<code>&lt;a href="menu.html"&gt;メニュー&lt;/a&gt;</code></li>
+      <li>メニューページから戻る：<code>&lt;a href="index.html"&gt;トップへ&lt;/a&gt;</code></li>
+    </ul>
+    <p>プレビューの上に、ブラウザのアドレスバーのような表示があります。書いたリンクをプレビューの中でクリックすると、実際のサイトと同じようにページが切り替わります。存在しないファイル名を書くと「ページが見つかりません」と表示されるので、わざと間違えて試してみるのもおすすめです。</p>
+    <p>どのページにも「戻る手段」を用意しておくのが、使いやすいサイトの基本です。</p>
+  `,
+  hint:'index.html の <nav> の中に：\n<a href="menu.html">メニュー</a>\n\nmenu.html の <nav> の中に：\n<a href="index.html">トップへ戻る</a>\n\nmenu.html の <ul> の中に：\n<li>カフェラテ</li>\n<li>ドリップコーヒー</li>\n<li>ハーブティー</li>',
+  html:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Café Verdant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Café Verdant</h1>
+  <nav>
+    <!-- ここに menu.html へのリンクを書く -->
+  </nav>
+  <p>緑に囲まれた、小さな珈琲店です。</p>
+</body>
+</html>
+`,
+  html2:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メニュー | Café Verdant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>ドリンクメニュー</h1>
+  <nav>
+    <!-- ここに index.html へ戻るリンクを書く -->
+  </nav>
+  <ul>
+    <!-- ここに飲み物の名前を li で3つ書く -->
+  </ul>
+</body>
+</html>
+`,
+  css:`body {
+  font-family: sans-serif;
+  line-height: 1.8;
+  padding: 16px;
+}
+nav a {
+  margin-right: 12px;
+}
+`,
+  js:'',
+  async checkMulti(ctx){
+    const errs=[];
+    const a=ctx.parse('index.html'), b=ctx.parse('menu.html');
+    const toMenu=Array.from(a.querySelectorAll('a')).find(x=>ctx.norm(x.getAttribute('href'))==='menu.html');
+    if(!toMenu) errs.push('index.html に menu.html へのリンク（<a href="menu.html">）がありません');
+    else if(toMenu.textContent.trim()==='') errs.push('index.html のリンクに、表示する文字を入れてください');
+    const toTop=Array.from(b.querySelectorAll('a')).find(x=>ctx.norm(x.getAttribute('href'))==='index.html');
+    if(!toTop) errs.push('menu.html に index.html へ戻るリンク（<a href="index.html">）がありません');
+    else if(toTop.textContent.trim()==='') errs.push('menu.html のリンクに、表示する文字を入れてください');
+    const lis=Array.from(b.querySelectorAll('ul li')).filter(li=>li.textContent.trim().length>0);
+    if(lis.length<3) errs.push('menu.html の <ul> の中に、飲み物の名前を入れた <li> を3つ以上書いてください');
+    return errs;
+  }
+},
+{
+  section:'multi', id:'multi-shared-css', title:'レベル30 — 全ページで同じCSSを使う',
+  eyebrow:'LEVEL 30 / 複数ページ・CSSの共有',
+  multi:{ html2:'menu.html', css:true, js:false },
+  task:'index.html と menu.html の両方に style.css を読み込む link タグを書いて、どちらのページでもナビゲーションのリンクが同じデザインになるようにしてください。',
+  explain:`
+    <p>CSSを別ファイルにする最大のメリットは、<b>1つのCSSを全ページで共有できる</b>ことです。デザインを直したいときは style.css を1か所直すだけで、すべてのページに反映されます。</p>
+    <p>やり方はレベル28と同じです。ただし、<b>link タグはページごとに必要</b>です。index.html にだけ書いても、menu.html には反映されません。両方のページの <code>&lt;head&gt;</code> に書きましょう。</p>
+    <p>今の状態では、2つのページのナビゲーションが標準の青いリンクのままで、style.css のデザインが反映されていません。両方に link を書いたら、プレビューの中でページを行き来して、見た目がそろっていることを確認してみてください。</p>
+    <p>慣れてきたら、style.css の色を書き換えてみましょう。両方のページが一度に変わります。</p>
+  `,
+  hint:'index.html と menu.html、両方の <head> の中に：\n<link rel="stylesheet" href="style.css">',
+  html:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Café Verdant</title>
+  <!-- ここに link タグ -->
+</head>
+<body>
+  <h1>Café Verdant</h1>
+  <nav>
+    <a href="index.html">トップ</a>
+    <a href="menu.html">メニュー</a>
+  </nav>
+  <p>緑に囲まれた、小さな珈琲店です。</p>
+</body>
+</html>
+`,
+  html2:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メニュー | Café Verdant</title>
+  <!-- ここに link タグ -->
+</head>
+<body>
+  <h1>ドリンクメニュー</h1>
+  <nav>
+    <a href="index.html">トップ</a>
+    <a href="menu.html">メニュー</a>
+  </nav>
+  <ul>
+    <li>カフェラテ</li>
+    <li>ドリップコーヒー</li>
+    <li>ハーブティー</li>
+  </ul>
+</body>
+</html>
+`,
+  css:`body {
+  font-family: sans-serif;
+  line-height: 1.8;
+  padding: 16px;
+}
+h1 {
+  color: #31525b;
+}
+nav {
+  background: #fdf3dc;
+  padding: 10px 16px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+nav a {
+  color: #e0507d;
+  font-weight: 700;
+  text-decoration: none;
+  margin-right: 16px;
+}
+`,
+  js:'',
+  async checkMulti(ctx){
+    const errs=[];
+    const pages=['index.html','menu.html'];
+    for(const p of pages){
+      const d=ctx.parse(p);
+      if(!ctx.styleLinks(d).some(l=>ctx.norm(l.getAttribute('href'))==='style.css')) errs.push(p+' に <link rel="stylesheet" href="style.css"> がありません');
+      if(d.querySelectorAll('nav a').length<2) errs.push(p+' の nav の中のリンクが2つ未満です（HTMLを消さないでください）');
+    }
+    if(errs.length) return errs;
+    const styles=[];
+    for(const p of pages){
+      const r=await ctx.render(p);
+      const a=r.doc.querySelector('nav a');
+      const cs=r.win.getComputedStyle(a);
+      styles.push(cs.color+'|'+cs.fontWeight);
+    }
+    if(styles[0].startsWith('rgb(0, 0, 238)')||styles[1].startsWith('rgb(0, 0, 238)')) errs.push('リンクがまだ標準の青いままです。style.css が読み込まれているか確認してください');
+    else if(styles[0]!==styles[1]) errs.push('2つのページでナビゲーションの見た目が違っています');
+    return errs;
+  }
+},
+{
+  section:'multi', id:'multi-anchors', title:'レベル31 — ページ内リンクで同じページ内を移動する',
+  eyebrow:'LEVEL 31 / 複数ページ・アンカーリンク',
+  multi:{ html2:null, css:false, js:false },
+  task:'ナビゲーションの3つのリンク（#about・#menu・#access）をクリックすると、対応する section までスクロール移動するように、各 section に id を付けてください。',
+  explain:`
+    <p>1ページがとても長いとき、ページの中の特定の場所へジャンプできるリンクがあると便利です。これを<b>ページ内リンク（アンカーリンク）</b>と呼びます。</p>
+    <p>仕組みは2つの部品の組み合わせです。</p>
+    <ul>
+      <li>移動先の要素に <b>id</b> を付ける：<code>&lt;section id="about"&gt;</code></li>
+      <li>リンクの href に <b>#</b> とidを書く：<code>&lt;a href="#about"&gt;お店について&lt;/a&gt;</code></li>
+    </ul>
+    <p><code>#</code> は「このページの中の」という意味です。<code>#</code> のあとの名前と、移動先の <code>id</code> の名前が<b>完全に一致</b>していないと、ジャンプできません。</p>
+    <p>今のHTMLには、リンクだけが書いてあって、移動先の id がまだありません。プレビューの中でリンクをクリックして、動かないことを確認してから、id を付けてみましょう。</p>
+    <p>カフェサイトのトップページでも、「お店について」「おすすめ」「営業時間」へのジャンプにこの仕組みを使っています。</p>
+  `,
+  hint:'<section id="about">...</section>\n<section id="menu">...</section>\n<section id="access">...</section>',
+  html:`<nav>
+  <a href="#about">お店について</a>
+  <a href="#menu">メニュー</a>
+  <a href="#access">アクセス</a>
+</nav>
+
+<section style="min-height:320px;">
+  <h2>お店について</h2>
+  <p>緑に囲まれた、小さな珈琲店です。</p>
+</section>
+
+<section style="min-height:320px;">
+  <h2>メニュー</h2>
+  <p>ドリップコーヒーと焼き菓子をご用意しています。</p>
+</section>
+
+<section style="min-height:320px;">
+  <h2>アクセス</h2>
+  <p>〇〇駅 西口より徒歩5分</p>
+</section>
+`,
+  html2:'', css:'', js:'',
+  async checkMulti(ctx){
+    const errs=[];
+    const d=ctx.parse('index.html');
+    const links=Array.from(d.querySelectorAll('nav a[href^="#"]'));
+    if(links.length<3){ errs.push('nav の中のページ内リンク（href="#○○"）が3つ未満です（HTMLを消さないでください）'); return errs; }
+    links.forEach(l=>{
+      const id=l.getAttribute('href').slice(1);
+      if(!id || !d.getElementById(id)) errs.push('「'+l.getAttribute('href')+'」の移動先になる id="'+id+'" の要素が見つかりません');
+    });
+    return errs;
+  }
+},
+{
+  section:'multi', id:'multi-script-file', title:'レベル32 — JavaScriptを別ファイルにして読み込む',
+  eyebrow:'LEVEL 32 / 複数ページ・外部JS',
+  multi:{ html2:null, css:false, js:true },
+  task:'index.html に <script src="script.js"> を書いて別ファイルの script.js を読み込み、script.js の中に「#btn をクリックしたら #msg の文字が変わる」処理を書いてください。',
+  explain:`
+    <p>JavaScriptもCSSと同じように、別のファイルに分けられます。HTMLは <code>index.html</code>、動きの部分は <code>script.js</code> です。</p>
+    <p>読み込むには <b>&lt;script&gt;タグ</b> の <code>src</code> 属性にファイル名を書きます。</p>
+    <p><code>&lt;script src="script.js"&gt;&lt;/script&gt;</code></p>
+    <p>書く場所には注意が必要です。HTMLは上から順に読み込まれるので、<code>&lt;head&gt;</code> の中でscriptを読み込むと、まだ存在しないボタンなどを探しにいってしまい、動きません。そのため、<b>&lt;body&gt; の一番最後（&lt;/body&gt; の直前）</b>に書くのが基本です。</p>
+    <p>書いたら、プレビューの中のボタンを押して、文字が変わるか試してみましょう。</p>
+  `,
+  hint:'index.html の </body> の直前に：\n<script src="script.js"><\/script>\n\nscript.js に：\ndocument.querySelector("#btn").addEventListener("click", () => {\n  document.querySelector("#msg").textContent = "ボタンが押されました！";\n});',
+  html:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>JSを別ファイルに</title>
+</head>
+<body>
+  <button id="btn">押してね</button>
+  <p id="msg"></p>
+
+  <!-- ここに script タグを書く（body の一番最後） -->
+</body>
+</html>
+`,
+  html2:'', css:'',
+  js:`// #btn がクリックされたら #msg の文字を変える処理を書く
+`,
+  async checkMulti(ctx){
+    const errs=[];
+    const d=ctx.parse('index.html');
+    const tag=ctx.scriptTag(d,'script.js');
+    if(!tag){ errs.push('index.html に <script src="script.js"><\/script> が見つかりません'); return errs; }
+    if(d.head.contains(tag) && !tag.hasAttribute('defer')) errs.push('script タグは <body> の一番最後に書きましょう（<head> で読み込むと、まだ存在しないボタンを探してしまいます）');
+    const r=await ctx.render('index.html');
+    const btn=r.doc.querySelector('#btn'), msg=r.doc.querySelector('#msg');
+    if(!btn||!msg){ errs.push('#btn または #msg が見つかりません（HTMLを消さないでください）'); return errs; }
+    const before=msg.textContent;
+    btn.click();
+    if(msg.textContent===before||msg.textContent.trim()==='') errs.push('ボタンをクリックしても #msg の文字が変わりませんでした（script.js に処理を書きましょう）');
+    return errs;
+  }
+},
 // ========== 総合 ==========
 {
-  section:'final', title:'レベル28 — 総合演習：カフェのホームページ',
+  section:'final', id:'final-cafe-2pages', title:'レベル33 — 総合演習：2ページのカフェサイト',
   eyebrow:'FINAL / 総合演習',
-  task:'これまでの集大成として、架空のお洒落なカフェのトップページを作ってください。header・nav・main・footer を持ち、main内には横並びのおすすめメニューカードを3つ以上、nav内には別ページ「menu.html」へのリンク（ページ遷移でドリンクメニュー全体を見る導線）を入れてください。さらに、営業時間などの詳細情報がボタンクリックで表示・非表示できるようにしてください。',
+  multi:{ html2:'menu.html', css:true, js:true },
+  task:'これまでの集大成として、架空のお洒落なカフェの2ページのサイト（index.html と menu.html）を完成させてください。共通のデザインは style.css に、トップページの動きは script.js に書きます。',
   explain:`
-    <p>ここまで学んだHTML・CSS・JavaScriptをすべて使って、実際のカフェのホームページに近い構成を組み立てます。この工房で作られた本物の2ページ構成サンプル（トップページ＋メニューページ）もチャットで共有されているので、参考にしてください。</p>
+    <p>ここまで学んだHTML・CSS・JavaScript、そしてファイルの分け方とページのつなぎ方をすべて使って、本物のホームページと同じ形の2ページサイトを作ります。タブの4つのファイルを行き来しながら組み立てましょう。</p>
+    <p><b>index.html（トップページ）</b></p>
     <ul>
+      <li>style.css を読み込む link タグ（<code>&lt;head&gt;</code> の中）</li>
       <li>header の中に h1（カフェの名前）</li>
-      <li>nav の中に a タグを2つ以上（その中の1つは <code>href="menu.html"</code> で「メニュー」などの文字にする＝ページ遷移でドリンクメニューへ移動する導線）</li>
-      <li>main の中に class="row"（display:flex）のdiv、その中に class="card" のおすすめメニューを3つ以上</li>
+      <li>nav の中に、menu.html へのリンク</li>
+      <li>main の中に class="row"（display:flex にする）のdiv、その中に class="card" のおすすめメニューを3つ以上</li>
       <li>footer（住所や営業時間など、内容は自由）</li>
-      <li>button id="toggleBtn" をクリックすると div id="extra"（営業時間などの詳細）の表示・非表示が切り替わる</li>
+      <li>button id="toggleBtn" と div id="extra"。ボタンを押すと #extra の表示・非表示が切り替わる</li>
+      <li>script.js を読み込む script タグ（<code>&lt;body&gt;</code> の一番最後）</li>
     </ul>
-    <p>難しく感じたら、これまでのレベルのヒントを見返しながら1つずつ組み立てていきましょう。</p>
+    <p><b>menu.html（メニューページ）</b></p>
+    <ul>
+      <li>style.css を読み込む link タグ</li>
+      <li>header の中に h1、nav の中に index.html へ戻るリンク</li>
+      <li>main の中に class="menu-item" の要素を3つ以上（飲み物の名前など）</li>
+      <li>footer</li>
+    </ul>
+    <p>完成したら、この2ページ（index.html・menu.html）と style.css・script.js を同じフォルダに入れてアップロードするだけで、そのままネット上に公開できます。index.html がサイトの最初のページになります。</p>
   `,
-  hint:'HTML:\n<header><h1>Café Verdant</h1></header>\n<nav>\n  <a href="#about">お店について</a>\n  <a href="menu.html">メニュー</a>\n</nav>\n<main>\n  <div class="row">\n    <div class="card">カフェラテ</div>\n    <div class="card">ドリップコーヒー</div>\n    <div class="card">季節のタルト</div>\n  </div>\n  <button id="toggleBtn">営業時間を見る</button>\n  <div id="extra" style="display:none;">平日 8:00-19:00 / 土日 9:00-20:00</div>\n</main>\n<footer><p>&copy; 2026 Café Verdant</p></footer>\n\nCSS:\n.row { display:flex; gap:10px; }\n.card { padding:16px; border:1px solid #ccc; border-radius:8px; }\n\nJS:\ndocument.querySelector("#toggleBtn").addEventListener("click", () => {\n  const extra = document.querySelector("#extra");\n  extra.style.display = extra.style.display === "none" ? "block" : "none";\n});',
-  html:`<!-- ここにカフェのトップページを作ってね -->\n`, css:`/* ここにスタイルを書く */\n`, js:`// ここにJSを書く\n`,
-  needsJs:true,
-  check(doc){
+  hint:'index.html：\n<head>... <link rel="stylesheet" href="style.css"> ...</head>\n<body>\n  <header><h1>Café Verdant</h1></header>\n  <nav><a href="menu.html">メニュー</a></nav>\n  <main>\n    <div class="row">\n      <div class="card">カフェラテ</div>\n      <div class="card">ドリップコーヒー</div>\n      <div class="card">クロワッサン</div>\n    </div>\n    <button id="toggleBtn">営業時間を見る</button>\n    <div id="extra" style="display:none;">平日 8:00-19:00</div>\n  </main>\n  <footer>&copy; 2026 Café Verdant</footer>\n  <script src="script.js"><\/script>\n</body>\n\nmenu.html：\n<header><h1>ドリンクメニュー</h1></header>\n<nav><a href="index.html">トップへ</a></nav>\n<main>\n  <div class="menu-item">カフェラテ ¥580</div>\n  <div class="menu-item">ドリップコーヒー ¥520</div>\n  <div class="menu-item">ハーブティー ¥520</div>\n</main>\n<footer>&copy; 2026 Café Verdant</footer>\n\nstyle.css：\n.row { display:flex; gap:12px; }\n.card { padding:16px; border:1px solid #ccc; border-radius:8px; }\n\nscript.js：\ndocument.querySelector("#toggleBtn").addEventListener("click", () => {\n  const extra = document.querySelector("#extra");\n  extra.style.display = extra.style.display === "none" ? "block" : "none";\n});',
+  html:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Café Verdant</title>
+  <!-- style.css を読み込む -->
+</head>
+<body>
+  <!-- header / nav / main / footer を作る -->
+
+  <!-- script.js を読み込む script タグを、body の最後に書く -->
+</body>
+</html>
+`,
+  html2:`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メニュー | Café Verdant</title>
+  <!-- style.css を読み込む -->
+</head>
+<body>
+  <!-- header / nav / main / footer を作る -->
+</body>
+</html>
+`,
+  css:`/* 2ページ共通のスタイルを書く */
+`,
+  js:`// トップページの動き（ボタンで表示切り替え）を書く
+`,
+  async checkMulti(ctx){
     const errs=[];
-    const header=doc.querySelector('header');
-    if(!header||!header.querySelector('h1')) errs.push('header内にh1（カフェ名）が見つかりません');
-    const nav=doc.querySelector('nav');
-    if(!nav||nav.querySelectorAll('a').length<2) errs.push('nav内にaタグが2つ以上見つかりません');
-    else{
-      const menuLink=Array.from(nav.querySelectorAll('a')).find(a=>(a.getAttribute('href')||'').includes('menu'));
-      if(!menuLink) errs.push('nav内に menu.html へのリンク（ページ遷移用）が見つかりません');
-    }
-    const main=doc.querySelector('main');
-    if(!main) errs.push('mainタグが見つかりません');
-    else{
-      const row=main.querySelector('.row');
-      if(!row) errs.push('main内に class="row" が見つかりません');
-      else{
-        const s=doc.defaultView.getComputedStyle(row);
-        if(s.display!=='flex') errs.push('.row に display:flex が設定されていません');
-        const cards=row.querySelectorAll('.card');
-        if(cards.length<3) errs.push('.row内の class="card"（おすすめメニュー）が3つ未満です');
-      }
-    }
-    if(!doc.querySelector('footer')) errs.push('footerタグが見つかりません');
-    const btn=doc.querySelector('#toggleBtn');
-    const extra=doc.querySelector('#extra');
-    if(!btn) errs.push('id="toggleBtn" のボタンが見つかりません');
-    if(!extra) errs.push('id="extra" の要素が見つかりません');
-    if(btn&&extra){
-      const before=doc.defaultView.getComputedStyle(extra).display;
+    const a=ctx.parse('index.html'), b=ctx.parse('menu.html');
+    const hasStyle=(d)=>ctx.styleLinks(d).some(l=>ctx.norm(l.getAttribute('href'))==='style.css');
+    // --- index.html ---
+    if(!hasStyle(a)) errs.push('index.html：style.css を読み込む <link> タグがありません');
+    const ha=a.querySelector('header');
+    if(!ha||!ha.querySelector('h1')) errs.push('index.html：header の中に h1（カフェ名）がありません');
+    const na=a.querySelector('nav');
+    if(!na||!Array.from(na.querySelectorAll('a')).some(x=>ctx.norm(x.getAttribute('href'))==='menu.html')) errs.push('index.html：nav の中に menu.html へのリンクがありません');
+    const rowA=a.querySelector('main .row');
+    if(!rowA) errs.push('index.html：main の中に class="row" の要素がありません');
+    else if(rowA.querySelectorAll('.card').length<3) errs.push('index.html：.row の中の class="card" が3つ未満です');
+    if(!a.querySelector('footer')) errs.push('index.html：footer がありません');
+    const btnA=a.querySelector('#toggleBtn'), extraA=a.querySelector('#extra');
+    if(!btnA) errs.push('index.html：id="toggleBtn" のボタンがありません');
+    if(!extraA) errs.push('index.html：id="extra" の要素がありません');
+    const tag=ctx.scriptTag(a,'script.js');
+    if(!tag) errs.push('index.html：<script src="script.js"><\/script> がありません');
+    else if(a.head.contains(tag) && !tag.hasAttribute('defer')) errs.push('index.html：script タグは <body> の一番最後に書きましょう');
+    // --- menu.html ---
+    if(!hasStyle(b)) errs.push('menu.html：style.css を読み込む <link> タグがありません');
+    const hb=b.querySelector('header');
+    if(!hb||!hb.querySelector('h1')) errs.push('menu.html：header の中に h1 がありません');
+    const nb=b.querySelector('nav');
+    if(!nb||!Array.from(nb.querySelectorAll('a')).some(x=>ctx.norm(x.getAttribute('href'))==='index.html')) errs.push('menu.html：nav の中に index.html へ戻るリンクがありません');
+    const items=Array.from(b.querySelectorAll('main .menu-item')).filter(x=>x.textContent.trim().length>0);
+    if(items.length<3) errs.push('menu.html：main の中に、中身のある class="menu-item" が3つ以上ありません');
+    if(!b.querySelector('footer')) errs.push('menu.html：footer がありません');
+    // --- 見た目・動き（実際に動かして確認） ---
+    const r=await ctx.render('index.html');
+    const row=r.doc.querySelector('main .row');
+    if(row && r.win.getComputedStyle(row).display!=='flex' && hasStyle(a)) errs.push('index.html：.row に display:flex が設定されていません（style.css に書きましょう）');
+    const btn=r.doc.querySelector('#toggleBtn'), extra=r.doc.querySelector('#extra');
+    if(btn && extra && tag){
+      const before=r.win.getComputedStyle(extra).display;
       btn.click();
-      const after=doc.defaultView.getComputedStyle(extra).display;
-      if(before===after) errs.push('ボタンをクリックしても#extraの表示状態が変わりませんでした');
+      const after=r.win.getComputedStyle(extra).display;
+      if(before===after) errs.push('index.html：ボタンをクリックしても #extra の表示状態が変わりませんでした');
     }
     return errs;
   }
@@ -1376,7 +1791,15 @@ const LEVELS = [
 
 let current=0;
 const done=new Array(LEVELS.length).fill(false);
-const sectionNames={html:'HTML編',css:'CSS編',js:'JAVASCRIPT編',advanced:'応用編',final:'総合演習'};
+
+// ===== 進捗の保存（このブラウザの localStorage に自動保存。サーバーには送りません） =====
+const PROGRESS_KEY='dojo-progress-v1';
+let storageOk=true;
+let lastSaved=null;
+let progress={ v:1, done:{}, current:null, code:{} };
+let savePending=false;
+let saveTimer;
+const sectionNames={html:'HTML編',css:'CSS編',js:'JAVASCRIPT編',advanced:'応用編',multi:'複数ページ編',final:'総合演習'};
 
 const sidebarEl=document.getElementById('sidebarLevels');
 const progressNote=document.getElementById('progressNote');
@@ -1392,6 +1815,23 @@ const jsInput=document.getElementById('jsInput');
 const htmlHighlight=document.getElementById('htmlHighlight');
 const cssHighlight=document.getElementById('cssHighlight');
 const jsHighlight=document.getElementById('jsHighlight');
+const html2Input=document.getElementById('html2Input');
+const html2Highlight=document.getElementById('html2Highlight');
+const tabHtml=document.getElementById('tabHtml');
+const tabHtml2=document.getElementById('tabHtml2');
+const tabCss=document.getElementById('tabCss');
+const tabJs=document.getElementById('tabJs');
+const addrUrl=document.getElementById('addrUrl');
+const addrBack=document.getElementById('addrBack');
+const previewNote=document.getElementById('previewNote');
+const saveNote=document.getElementById('saveNote');
+const resetLevelBtn=document.getElementById('resetLevelBtn');
+const resetAllBtn=document.getElementById('resetAllBtn');
+const confirmModal=document.getElementById('confirmModal');
+const confirmTitle=document.getElementById('confirmTitle');
+const confirmText=document.getElementById('confirmText');
+const confirmYes=document.getElementById('confirmYes');
+const confirmNo=document.getElementById('confirmNo');
 const preview=document.getElementById('preview');
 const hiddenCheck=document.getElementById('hiddenCheck');
 const resultEl=document.getElementById('result');
@@ -1452,23 +1892,33 @@ function renderSidebar(){
   progressNote.textContent=`進捗: ${doneCount} / ${LEVELS.length} レベル完了`;
 }
 
-function buildDoc(html,css,js){
-  return `<!DOCTYPE html><html><head><style>${css}</style>
-<script>
-window.__logs = [];
+// プレビュー／検査用ページに差し込む共通の下準備スクリプト
+const PREAMBLE_JS = `window.__logs = [];
 console.log = function(){ window.__logs.push(Array.prototype.slice.call(arguments).join(' ')); };
 // 学習用の簡易IntersectionObserver：observe()した要素をすぐ「画面に入った」ことにして
 // コールバックを呼ぶ（プレビュー上でスクロールしなくても動作を確認できるようにするため）
 window.IntersectionObserver = function(callback){
   this.observe = function(target){
     if(!target) return;
-    setTimeout(() => {
-      callback([{ isIntersecting: true, target: target }]);
-    }, 0);
+    setTimeout(function(){ callback([{ isIntersecting: true, target: target }]); }, 0);
   };
   this.unobserve = function(){};
   this.disconnect = function(){};
 };
+// ページ内リンク(#)以外のリンクは、親ページに伝えてページ切り替えを行う
+document.addEventListener('click', function(e){
+  var a = e.target && e.target.closest ? e.target.closest('a') : null;
+  if(!a) return;
+  var href = a.getAttribute('href');
+  if(!href || href.charAt(0) === '#') return;
+  e.preventDefault();
+  try{ parent.postMessage({ type: 'dojo-nav', href: href }, '*'); }catch(err){}
+});`;
+
+function buildDoc(html,css,js){
+  return `<!DOCTYPE html><html><head><style>${css}</style>
+<script>
+${PREAMBLE_JS}
 document.addEventListener('DOMContentLoaded', function(){
   try {
 ${js}
@@ -1479,23 +1929,123 @@ ${js}
 </body></html>`;
 }
 
+// ===== 複数ページ（ファイルを分けて作るレベル）の仕組み =====
+function normHref(h){
+  return (h||'').trim().replace(/^\.\//,'').replace(/^\//,'').split('#')[0].split('?')[0];
+}
+let previewPage='index.html';
+let previewHistory=[];
+function pageSource(name){
+  const m=LEVELS[current].multi;
+  if(name==='index.html') return htmlInput.value;
+  if(m && m.html2 && name===m.html2) return html2Input.value;
+  return null;
+}
+function buildNotFoundDoc(name){
+  const m=LEVELS[current].multi;
+  const files=['index.html'].concat(m&&m.html2?[m.html2]:[]).join(' / ');
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><script>${PREAMBLE_JS}<\/script>
+<style>body{font-family:sans-serif;padding:32px 22px;color:#4b3b47;line-height:1.8}h1{font-size:44px;margin:0 0 8px;color:#ee6a93}a{color:#6f55c9;font-weight:700}code{background:#efe9ff;padding:2px 6px;border-radius:6px}</style></head>
+<body><h1>404</h1><p>ページが見つかりません：<code>${escapeHtml(name)}</code></p>
+<p>リンクの href に書いたファイル名が、実際のファイル名と違っているようです。大文字・小文字も区別されます。<br>このサイトにあるページ：<code>${escapeHtml(files)}</code></p>
+<p><a href="index.html">index.html に戻る</a></p></body></html>`;
+}
+// 指定ページのHTMLに、style.css / script.js を「読み込んだ場合だけ」反映して1枚のHTMLにする
+function buildMultiDoc(name){
+  const m=LEVELS[current].multi;
+  let body=pageSource(name);
+  if(body===null) return buildNotFoundDoc(name);
+  let useJs=false;
+  if(m.css){
+    body=body.replace(/<link\b[^>]*>/gi,(tag)=>{
+      if(/rel\s*=\s*["']?stylesheet/i.test(tag)){
+        const h=tag.match(/href\s*=\s*["']?([^"'\s>]+)/i);
+        if(h && normHref(h[1])==='style.css') return '<style data-from="style.css">\n'+cssInput.value+'\n</style>';
+      }
+      return tag;
+    });
+  }
+  if(m.js){
+    body=body.replace(/<script\b[^>]*\bsrc\s*=\s*["']?([^"'\s>]+)["']?[^>]*>\s*<\/script>/gi,(tag,src)=>{
+      if(normHref(src)==='script.js'){ useJs=true; return ''; }
+      return tag;
+    });
+  }
+  const jsBlock=useJs
+    ? "document.addEventListener('DOMContentLoaded',function(){try{\n"+jsInput.value+"\n}catch(e){window.__logs.push('ERROR: '+e.message);}});"
+    : '';
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><script>'+PREAMBLE_JS+'\n'+jsBlock+'<\/script></head>'+body;
+}
+
 let previewDebounce;
+function renderPreviewNow(){
+  const lv=LEVELS[current];
+  if(lv.multi){
+    preview.srcdoc=buildMultiDoc(previewPage);
+    addrUrl.textContent=previewPage;
+    addrBack.disabled=previewHistory.length===0;
+  }else{
+    preview.srcdoc=buildDoc(htmlInput.value,cssInput.value,jsInput.value);
+  }
+}
 function updatePreview(){
   clearTimeout(previewDebounce);
-  previewDebounce = setTimeout(() => {
-    preview.srcdoc=buildDoc(htmlInput.value,cssInput.value,jsInput.value);
-  }, 250);
+  previewDebounce = setTimeout(renderPreviewNow, 250);
+}
+let noteTimer;
+function showPreviewNote(text){
+  previewNote.textContent=text;
+  previewNote.classList.add('show');
+  clearTimeout(noteTimer);
+  noteTimer=setTimeout(()=>previewNote.classList.remove('show'),5000);
+}
+function handlePreviewNav(href){
+  const lv=LEVELS[current];
+  if(/^(https?:)?\/\//i.test(href)||/^(mailto|tel):/i.test(href)){
+    showPreviewNote('外部サイトへのリンクです（プレビューでは移動しません）：'+href);
+    return;
+  }
+  if(!lv.multi){
+    showPreviewNote('このレベルでは、リンク先のページは用意されていないので移動しません：'+href);
+    return;
+  }
+  const target=normHref(href)||'index.html';
+  if(target!==previewPage){ previewHistory.push(previewPage); previewPage=target; }
+  renderPreviewNow();
+}
+window.addEventListener('message',(e)=>{
+  if(e.source!==preview.contentWindow) return;
+  const d=e.data;
+  if(!d||d.type!=='dojo-nav') return;
+  handlePreviewNav(String(d.href||''));
+});
+addrBack.addEventListener('click',()=>{
+  if(previewHistory.length){ previewPage=previewHistory.pop(); renderPreviewNow(); }
+});
+
+function setupTabs(lv){
+  const m=lv.multi;
+  tabHtml.textContent=m?'index.html':'HTML';
+  tabCss.textContent=m?'style.css':'CSS';
+  tabJs.textContent=m?'script.js':'JavaScript';
+  tabHtml2.textContent=(m&&m.html2)?m.html2:'';
+  tabHtml2.style.display=(m&&m.html2)?'':'none';
+  tabCss.style.display=(!m||m.css)?'':'none';
+  tabJs.style.display=(!m||m.js)?'':'none';
+  document.querySelector('.preview-pane').classList.toggle('multi',!!m);
 }
 
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
   document.getElementById('htmlWrap').classList.toggle('active-editor',tab==='html');
+  document.getElementById('html2Wrap').classList.toggle('active-editor',tab==='html2');
   document.getElementById('cssWrap').classList.toggle('active-editor',tab==='css');
   document.getElementById('jsWrap').classList.toggle('active-editor',tab==='js');
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
 
 function loadLevel(i){
+  flushSave();
   current=i;
   const lv=LEVELS[i];
   eyebrowEl.textContent=lv.eyebrow;
@@ -1507,17 +2057,26 @@ function loadLevel(i){
   hintToggle.textContent='解答例を見る ▾';
   mobileTitle.textContent=lv.title;
   closeDrawer();
-  htmlInput.value=lv.html;
-  cssInput.value=lv.css;
-  jsInput.value=lv.js;
+  setupTabs(lv);
+  previewPage='index.html';
+  previewHistory=[];
+  previewNote.classList.remove('show');
+  const saved=progress.code[lv.id]||null;
+  htmlInput.value=(saved&&typeof saved.html==='string')?saved.html:lv.html;
+  html2Input.value=(saved&&typeof saved.html2==='string')?saved.html2:(lv.html2||'');
+  cssInput.value=(saved&&typeof saved.css==='string')?saved.css:lv.css;
+  jsInput.value=(saved&&typeof saved.js==='string')?saved.js:lv.js;
   renderHighlight(htmlInput, htmlHighlight, HTML_RE);
+  renderHighlight(html2Input, html2Highlight, HTML_RE);
   renderHighlight(cssInput, cssHighlight, CSS_RE);
   renderHighlight(jsInput, jsHighlight, JS_RE);
-  switchTab(lv.needsJs?'js':'html');
+  switchTab((!lv.multi&&lv.needsJs)?'js':'html');
   resultEl.textContent='';
   resultEl.className='result';
   updatePreview();
   renderSidebar();
+  progress.current=lv.id;
+  persistProgress();
 }
 
 hintToggle.onclick=()=>{
@@ -1543,12 +2102,17 @@ function autoCloseTag(e){
   ta.selectionStart = ta.selectionEnd = pos;
 }
 htmlInput.addEventListener('input', autoCloseTag);
+html2Input.addEventListener('input', autoCloseTag);
+html2Input.addEventListener('input',updatePreview);
 htmlInput.addEventListener('input',updatePreview);
 cssInput.addEventListener('input',updatePreview);
 jsInput.addEventListener('input',updatePreview);
+[htmlInput,html2Input,cssInput,jsInput].forEach(t=>t.addEventListener('input',saveCodeSoon));
 
 // シンタックスハイライトの再描画とスクロール同期
 htmlInput.addEventListener('input', () => renderHighlight(htmlInput, htmlHighlight, HTML_RE));
+html2Input.addEventListener('input', () => renderHighlight(html2Input, html2Highlight, HTML_RE));
+html2Input.addEventListener('scroll', () => syncScroll(html2Input, html2Highlight));
 cssInput.addEventListener('input', () => renderHighlight(cssInput, cssHighlight, CSS_RE));
 jsInput.addEventListener('input', () => renderHighlight(jsInput, jsHighlight, JS_RE));
 htmlInput.addEventListener('scroll', () => syncScroll(htmlInput, htmlHighlight));
@@ -1556,22 +2120,71 @@ cssInput.addEventListener('scroll', () => syncScroll(cssInput, cssHighlight));
 jsInput.addEventListener('scroll', () => syncScroll(jsInput, jsHighlight));
 
 // Tabキーで、直後にある閉じタグ（例: </p>）の外側へカーソルを移動する
-htmlInput.addEventListener('keydown', (e) => {
+function tabSkipHandler(e){
   if(e.key !== 'Tab') return;
-  const pos = htmlInput.selectionStart;
-  if(htmlInput.selectionStart !== htmlInput.selectionEnd) return; // 範囲選択中は通常のTab動作
-  const after = htmlInput.value.slice(pos);
+  const ta = e.target;
+  const pos = ta.selectionStart;
+  if(ta.selectionStart !== ta.selectionEnd) return; // 範囲選択中は通常のTab動作
+  const after = ta.value.slice(pos);
   const m = after.match(/^<\/[a-zA-Z][a-zA-Z0-9]*>/);
   if(m){
     e.preventDefault();
-    htmlInput.selectionStart = htmlInput.selectionEnd = pos + m[0].length;
+    ta.selectionStart = ta.selectionEnd = pos + m[0].length;
   }
-});
+}
+htmlInput.addEventListener('keydown', tabSkipHandler);
+html2Input.addEventListener('keydown', tabSkipHandler);
+
+function finishCheck(errs){
+  if(errs.length===0){
+    done[current]=true;
+    progress.done[LEVELS[current].id]=true;
+    saveCodeNow();
+    resultEl.className='result ok';
+    resultEl.textContent='✓ クリア！ このレベルは完了です。';
+    renderSidebar();
+    setTimeout(()=>showClear(current>=LEVELS.length-1),250);
+  }else{
+    resultEl.className='result ng';
+    resultEl.innerHTML='✕ まだ足りない部分があります：<ul>'+errs.map(e=>`<li>${escapeHtml(String(e))}</li>`).join('')+'</ul>';
+  }
+}
+
+// 複数ページのレベル：各ページ・CSS・JSをファイルとして扱って検査する
+const CHECK_FRAME_STYLE='position:fixed;left:-10000px;top:0;width:900px;height:700px;border:0;visibility:hidden;';
+async function runMultiCheck(lv){
+  const frames=[];
+  const ctx={
+    src:{ index:htmlInput.value, menu:html2Input.value, css:cssInput.value, js:jsInput.value },
+    norm:normHref,
+    parse:(name)=>new DOMParser().parseFromString(pageSource(name)||'','text/html'),
+    styleLinks:(d)=>Array.from(d.querySelectorAll('link')).filter(l=>/stylesheet/i.test(l.getAttribute('rel')||'')),
+    scriptTag:(d,file)=>Array.from(d.querySelectorAll('script')).find(sc=>normHref(sc.getAttribute('src'))===file)||null,
+    render:(name)=>new Promise((resolve)=>{
+      const f=document.createElement('iframe');
+      f.setAttribute('aria-hidden','true');
+      f.style.cssText=CHECK_FRAME_STYLE;
+      frames.push(f);
+      f.onload=()=>setTimeout(()=>resolve({doc:f.contentDocument,win:f.contentWindow}),80);
+      f.srcdoc=buildMultiDoc(name);
+      document.body.appendChild(f);
+    })
+  };
+  let errs;
+  try{
+    errs=(await lv.checkMulti(ctx))||[];
+  }catch(e){
+    errs=['検査中にエラーが起きました: '+e.message];
+  }
+  frames.forEach(f=>f.remove());
+  finishCheck(errs);
+}
 
 document.getElementById('checkBtn').onclick=()=>{
   const lv=LEVELS[current];
+  if(lv.multi){ runMultiCheck(lv); return; }
   hiddenCheck.srcdoc=buildDoc(htmlInput.value,cssInput.value,jsInput.value);
-  hiddenCheck.onload=()=>{
+  hiddenCheck.onload=()=>setTimeout(()=>{
     const doc=hiddenCheck.contentDocument;
     const logs=(hiddenCheck.contentWindow.__logs)||[];
     let errs=[];
@@ -1580,17 +2193,8 @@ document.getElementById('checkBtn').onclick=()=>{
     }catch(e){
       errs=['検査中にエラーが起きました: '+e.message];
     }
-    if(errs.length===0){
-      done[current]=true;
-      resultEl.className='result ok';
-      resultEl.textContent='✓ クリア！ このレベルは完了です。';
-      renderSidebar();
-      setTimeout(()=>showClear(current>=LEVELS.length-1),250);
-    }else{
-      resultEl.className='result ng';
-      resultEl.innerHTML='✕ まだ足りない部分があります：<ul>'+errs.map(e=>`<li>${e}</li>`).join('')+'</ul>';
-    }
-  };
+    finishCheck(errs);
+  },80);
 };
 
 // ===== ダークモード切替・スマホ用ドロワー =====
@@ -1658,7 +2262,85 @@ modalStay.onclick=()=>clearModal.classList.remove('show');
 modalNext.onclick=()=>{ clearModal.classList.remove('show'); if(current<LEVELS.length-1) loadLevel(current+1); };
 clearModal.addEventListener('click',(e)=>{ if(e.target===clearModal) clearModal.classList.remove('show'); });
 
-loadLevel(0);
+// ===== 進捗の保存・復元・リセット =====
+function loadProgress(){
+  try{
+    const raw=localStorage.getItem(PROGRESS_KEY);
+    if(raw){
+      const d=JSON.parse(raw);
+      if(d && d.v===1){
+        progress={ v:1, done:d.done||{}, current:d.current||null, code:d.code||{} };
+      }
+    }
+  }catch(e){ storageOk=false; }
+}
+function renderStorageNote(){
+  if(storageOk){
+    saveNote.classList.remove('warn');
+    const t=lastSaved?('　最終保存 '+String(lastSaved.getHours()).padStart(2,'0')+':'+String(lastSaved.getMinutes()).padStart(2,'0')):'';
+    saveNote.textContent='進捗とコードは、このブラウザに自動で保存されます。'+t;
+  }else{
+    saveNote.classList.add('warn');
+    saveNote.textContent='このブラウザでは保存できません（プライベートモードなど）。ページを閉じると進捗は消えます。';
+  }
+}
+function persistProgress(){
+  try{
+    localStorage.setItem(PROGRESS_KEY,JSON.stringify(progress));
+    storageOk=true;
+    lastSaved=new Date();
+  }catch(e){ storageOk=false; }
+  renderStorageNote();
+}
+function saveCodeNow(){
+  clearTimeout(saveTimer);
+  savePending=false;
+  const lv=LEVELS[current];
+  progress.code[lv.id]={ html:htmlInput.value, html2:html2Input.value, css:cssInput.value, js:jsInput.value };
+  persistProgress();
+}
+function saveCodeSoon(){
+  savePending=true;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveCodeNow,400);
+}
+function flushSave(){ if(savePending) saveCodeNow(); }
+window.addEventListener('beforeunload',flushSave);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) flushSave(); });
+
+function askConfirm(title,text,okLabel){
+  return new Promise((resolve)=>{
+    confirmTitle.textContent=title;
+    confirmText.textContent=text;
+    confirmYes.textContent=okLabel||'OK';
+    confirmModal.classList.add('show');
+    const close=(v)=>{ confirmModal.classList.remove('show'); confirmYes.onclick=null; confirmNo.onclick=null; resolve(v); };
+    confirmYes.onclick=()=>close(true);
+    confirmNo.onclick=()=>close(false);
+  });
+}
+confirmModal.addEventListener('click',(e)=>{ if(e.target===confirmModal) confirmNo.click(); });
+
+resetLevelBtn.addEventListener('click',async()=>{
+  const ok=await askConfirm('最初の状態に戻しますか？','このレベルで書いたコードが消えて、スタート時の状態に戻ります。','戻す');
+  if(!ok) return;
+  delete progress.code[LEVELS[current].id];
+  persistProgress();
+  loadLevel(current);
+});
+resetAllBtn.addEventListener('click',async()=>{
+  const ok=await askConfirm('進捗をすべてリセットしますか？','クリア済みのレベルと、書いたコードがすべて消えます。元には戻せません。','リセットする');
+  if(!ok) return;
+  progress={ v:1, done:{}, current:LEVELS[0].id, code:{} };
+  done.fill(false);
+  persistProgress();
+  loadLevel(0);
+});
+
+loadProgress();
+LEVELS.forEach((lv,i)=>{ if(progress.done[lv.id]) done[i]=true; });
+const startIdx=Math.max(0,LEVELS.findIndex(lv=>lv.id===progress.current));
+loadLevel(startIdx);
 </script>
 </body>
 </html>
